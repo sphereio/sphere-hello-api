@@ -1,4 +1,4 @@
-sphere-hello-api
+Hello Sphere API
 ================
 
-First steps to access the API of Sphere.IO in several languages
+First steps to access the API of SPHERE.IO in several languages.
