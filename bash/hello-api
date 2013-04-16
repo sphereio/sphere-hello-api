@@ -1,0 +1,99 @@
+#!/bin/bash
+
+usage() {
+    echo "$(basename $0) - get number of products in your sphere project."
+    echo ""
+    echo "Arguments:"
+    echo "-c <client_id>: Client ID of your sphere project."
+    echo "-s <client_secret>: Client secret of your sphere project."
+    echo "-p <project_key>: Key of your sphere project."
+    echo "-f <config_file>: You can provide all those 3 arguments in a simple property file:"
+    echo "                  CLIENT_ID='<client_id>'"
+    echo "                  CLIENT_SECRET='<client_secret>'"
+    echo "                  PROJECT_KEY='<project_key>'"
+}
+
+login() {
+    local enc="$(echo -n "${CLIENT_ID}:${CLIENT_SECRET}" | base64)"
+    local result="$(curl -s -X POST -H "Authorization: Basic ${enc}" -d "grant_type=client_credentials&scope=manage_project:${PROJECT_KEY}" https://auth.sphere.io/oauth/token)"
+    local t="$(echo $result | jq  '.access_token')"
+    local t="${t%\"}" # removing leading quote
+    readonly ACCESS_TOKEN="${t#\"}" # removing trailing quote
+    if [ "$ACCESS_TOKEN" = "null" ]; then
+        echo "$result"
+        exit 2
+    fi
+}
+
+get_products() {
+    curl -s "https://api.sphere.io/${PROJECT_KEY}/product-projections?access_token=${ACCESS_TOKEN}" | jq '.total'
+}
+
+check_tools() {
+    which curl >/dev/null
+    if [ "$?" != "0" ]; then
+        echo "Please install curl - http://curl.haxx.se/"
+        exit 1
+    fi
+    which jq >/dev/null
+    if [ "$?" != "0" ]; then
+        echo "Please install jq - http://stedolan.github.io/jq/"
+        exit 1
+    fi
+}
+
+
+check_tools
+
+set -e
+
+while getopts "f:c:s:p:" OPT; do
+    case "${OPT}" in
+        f)
+            readonly CONFIG_FILE="${OPTARG}"
+            ;;
+        c)
+            readonly CLIENT_ID="${OPTARG}"
+            ;;
+        s)
+            readonly CLIENT_SECRET="${OPTARG}"
+            ;;
+        p)
+            readonly PROJECT_KEY="${OPTARG}"
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown argument '${OPT}'!"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+if [ -f "$CONFIG_FILE" ]; then
+    . $CONFIG_FILE
+fi
+
+if [ -z "$CLIENT_ID" ]; then
+    echo "Parameter '-c'/client_id missing!"
+    usage
+    exit 1
+fi
+
+if [ -z "$CLIENT_SECRET" ]; then
+    echo "Parameter '-s'/client_secret missing!"
+    usage
+    exit 1
+fi
+
+if [ -z "$PROJECT_KEY" ]; then
+    echo "Parameter '-p'/projecy_key missing!"
+    usage
+    exit 1
+fi
+
+login
+get_products
