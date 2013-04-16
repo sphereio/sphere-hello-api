@@ -1,4 +1,4 @@
 Hello Sphere API
 ================
 
-First steps to access the API of SPHERE.IO in several languages.
+First steps to access the API of [SPHERE.IO](http://sphere.io/) in several languages.
