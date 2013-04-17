@@ -47,7 +47,7 @@ check_tools
 
 set -e
 
-while getopts "f:c:s:p:" OPT; do
+while getopts "f:c:s:p:h" OPT; do
     case "${OPT}" in
         f)
             readonly CONFIG_FILE="${OPTARG}"
