@@ -90,7 +90,7 @@ if [ -z "$CLIENT_SECRET" ]; then
 fi
 
 if [ -z "$PROJECT_KEY" ]; then
-    echo "Parameter '-p'/projecy_key missing!"
+    echo "Parameter '-p'/project_key missing!"
     usage
     exit 1
 fi
