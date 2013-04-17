@@ -1,0 +1,26 @@
+#! /usr/bin/env python
+
+import base64
+import requests
+import config
+
+def login(client_id, client_secret, project_key):
+    encoded = base64.b64encode("%s:%s" % (client_id, client_secret))
+    headers = { 'Authorization' : "Basic %s" % encoded,
+                'Content-Type'  : 'application/x-www-form-urlencoded' }
+    body = "grant_type=client_credentials&scope=manage_project:%s" % project_key
+    url = "https://auth.sphere.io/oauth/token"
+    r = requests.post(url, data=body, headers=headers)
+    return r.json()
+
+def list_products(auth, project_key):
+    headers = { "Authorization" : "Bearer %s" % auth["access_token"] }
+    url = "https://api.sphere.io/%s/product-projections" % project_key
+    r = requests.get(url, headers=headers)
+    products = r.json()
+    for i in products["results"]:
+        print i["name"]
+
+auth = login(config.CLIENT_ID, config.CLIENT_SECRET, config.PROJECT_KEY)
+list_products(auth, config.PROJECT_KEY)
+

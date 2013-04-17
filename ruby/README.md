@@ -1,7 +1,7 @@
 Ruby Hello on SPHERE.IO
 =======================
 
-An Ruby example to authenticate your application to [SPHERE.IO](http://sphere.io) and get the number of products in your project.
+A Ruby example to authenticate your application to [SPHERE.IO](http://sphere.io) and get the number of products in your project.
 
 ## Run
 
