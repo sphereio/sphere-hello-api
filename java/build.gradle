@@ -1,0 +1,23 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = "helloApi"
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'http://public-repo.ci.cloud.commercetools.de/content/repositories/releases'
+    }
+}
+
+dependencies {
+    compile 'io.sphere:sphere-java-client:0.27'
+    compile 'org.slf4j:slf4j-simple:1.6.1'
+    compile 'commons-configuration:commons-configuration:1.7'
+}
+
+sourceSets {
+    main {
+        java.srcDir 'src'
+    }
+}
