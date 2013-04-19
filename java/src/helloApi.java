@@ -11,7 +11,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
 
-public class helloApi {
+public class HelloApi {
     public static void main(String[] args) {
         try {
             Configuration config = readConfiguration();       
