@@ -1,0 +1,13 @@
+name:                sphere-hello-api
+version:             0.1.0.0
+synopsis:            Minimal usage sample of the Sphere HTTP APIs.
+homepage:            http://sphere.io/
+author:              Commercetools
+maintainer:          support@sphere.io
+build-type:          Simple
+cabal-version:       >=1.8
+
+executable sphere-hello-api
+  hs-source-dirs: src
+  main-is: Main.hs
+  build-depends: base ==4.5.*, curl, json
