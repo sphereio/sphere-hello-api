@@ -14,6 +14,6 @@ loadConfig :: String -> IO ApiConfig
 loadConfig = (liftM decodeJSON) . readFile
 
 productsUrl :: ApiConfig -> String
-productsUrl cred = "https://api-v0.sphere.io/" ++ projectKey cred ++ "/product-projections"
+productsUrl cfg = "https://api-v0.sphere.io/" ++ projectKey cfg ++ "/product-projections"
 
 tokenUrl = "https://auth-v0.sphere.io/oauth/token"
