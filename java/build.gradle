@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    compile 'io.sphere:sphere-java-client:0.3'
+    compile 'io.sphere:sphere-java-client:0.31'
     compile 'org.slf4j:slf4j-simple:1.6.1'
     compile 'commons-configuration:commons-configuration:1.7'
 }
