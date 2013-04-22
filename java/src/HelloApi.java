@@ -41,7 +41,7 @@ public class HelloApi {
     public static ShopClient buildClient(String project, String client, String secret) {
         ShopClientConfig config = new ShopClientConfig
                 .Builder(project, client, secret)
-                .setApiMode(ApiMode.Live)
+                .setApiMode(ApiMode.Published)
                 .build();
         return ShopClient.create(config);
     }
