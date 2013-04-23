@@ -41,5 +41,5 @@ if options[:config_file]
   options.merge! c
 end
 
-token = login options['client_id'], options['client_secret'], options['project_key']
+token = SphereIO.login options['client_id'], options['client_secret'], options['project_key']
 get_products token, options['project_key']
