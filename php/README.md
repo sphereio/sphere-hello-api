@@ -5,7 +5,6 @@ An example to authenticate your application to [SPHERE.IO](http://sphere.io) and
 
 ## Run
 
-Add your project key, OAuth client ID and client secret to `config.php`.
+Add your project key, client id and secret to `config.php`.
 
-You need to install a local server to run it, like MAMP, WAMP, etc...
-Then start the server and open the web page.
+You will need a local web server, like MAMP, WAMP, etc. Start the server and open the web page.
