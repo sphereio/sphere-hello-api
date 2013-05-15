@@ -1,4 +1,4 @@
-import io.sphere.client.shop.ShopClient;
+import io.sphere.client.shop.SphereClient;
 import io.sphere.client.shop.model.Product;
 
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class HelloApi {
     public static void main(String[] args) throws IOException {
-        ShopClient sphere = ShopClient.create(Config.load("config.properties"));
+        SphereClient sphere = SphereClient.create(Config.load("config.properties"));
 
         for (Product product : sphere.products().all().fetch().getResults()) {
             System.out.println(product.getName());
