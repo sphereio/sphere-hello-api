@@ -16,7 +16,8 @@ PROJECT_KEY='project_key'
 
 As CORS are not allowed to the Auth service, we get the `access_token` with a bash script, simply run
 ```bash
-$ ./main -f config.me
+$ cd bin
+$ ./main -f ../config.me
 ```
 
 This will print the credentials into `config.js`, loaded then HTML webpage.
