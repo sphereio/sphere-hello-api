@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.js"></script>
+    <script type="text/javascript" src="config.js"></script>
+    <script type="text/javascript" src="src/hello.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function(){
+      var hello = new Hello(config)
+      hello.getProducts(function(error, result){
+        if (error) {
+          console.log(error.statusText)
+        } else {
+          str = JSON.stringify(result, undefined, 4)
+          $("pre").empty().html(str)
+          prettyPrint()
+        }
+      })
+    })
+    </script>
+  </head>
+  <body>
+    <pre class="prettyprint"></pre>
+  </body>
+</html>

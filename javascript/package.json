@@ -1,0 +1,26 @@
+{
+  "name": "sphere-hello-api-js",
+  "description": "First steps to access the API of SPHERE.IO",
+  "version": "0.1.0",
+  "keywords": ["sphere.io", "api", "hello", "javascript", "js"],
+  "author": {
+    "name": "Nicola Molinari",
+    "email": "nicola.molinari@commercetools.de"
+  },
+  "private": false,
+  "devDependencies": {
+    "grunt": "~0.4.x",
+    "grunt-cli": "~0.1.9",
+    "grunt-contrib-coffee": "~0.7.0",
+    "grunt-contrib-watch": "~0.4.4",
+    "grunt-contrib-connect": "~0.3.0",
+    "grunt-open": "~0.2.0"
+  },
+  "engines": {
+    "node": ">= 0.8.16"
+  },
+  "scripts": {
+    "run": "grunt run",
+    "build": "grunt build"
+  }
+}

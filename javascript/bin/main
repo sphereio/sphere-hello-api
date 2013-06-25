@@ -1,0 +1,75 @@
+#!/bin/bash
+
+usage() {
+    echo "$(basename $0) - get access token and store as JSON. Open JavaScript app in browser."
+    echo ""
+    echo "Arguments:"
+    echo "-f <config_file>: You can provide all those 3 arguments in a simple property file:"
+    echo "                  CLIENT_ID='<client_id>'"
+    echo "                  CLIENT_SECRET='<client_secret>'"
+    echo "                  PROJECT_KEY='<project_key>'"
+}
+
+. login.sh
+
+check_tools() {
+    which curl >/dev/null
+    if [ "$?" != "0" ]; then
+        echo "Please install curl - http://curl.haxx.se/"
+        exit 1
+    fi
+    which jq >/dev/null
+    if [ "$?" != "0" ]; then
+        echo "Please install jq - http://stedolan.github.io/jq/"
+        exit 1
+    fi
+}
+
+
+check_tools
+
+set -e
+
+while getopts "f:c:s:p:h" OPT; do
+    case "${OPT}" in
+        f)
+            readonly CONFIG_FILE="${OPTARG}"
+            ;;
+        h)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Unknown argument '${OPT}'!"
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+if [ -f "$CONFIG_FILE" ]; then
+    . $CONFIG_FILE
+fi
+
+if [ -z "$CLIENT_ID" ]; then
+    echo "Parameter '-c'/client_id missing!"
+    usage
+    exit 1
+fi
+
+if [ -z "$CLIENT_SECRET" ]; then
+    echo "Parameter '-s'/client_secret missing!"
+    usage
+    exit 1
+fi
+
+if [ -z "$PROJECT_KEY" ]; then
+    echo "Parameter '-p'/project_key missing!"
+    usage
+    exit 1
+fi
+
+login
+
+echo "var config = { project_key: '${PROJECT_KEY}', access_token: '${ACCESS_TOKEN}' }" >../config.js
+echo "{ project_key: '${PROJECT_KEY}', access_token: '${ACCESS_TOKEN}' }"
