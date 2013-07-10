@@ -1,49 +1,51 @@
 <?php
   include('./config.php');
+  include('./app.php');
 
-  function makeRequest($url, $context) {
-    $fp = fopen($url, 'rb', false, $context);
-    if (!$fp) {
-      throw new Exception("Problem with $url");
-    }
-    // get the response and decode
-    $response = stream_get_contents($fp);
-    if ($response === false) {
-      throw new Exception("Problem reading data from $url");
-    }
-    $result = json_decode($response, true);
-    // close the response
-    fclose($fp);
+  $encoded_products = json_encode($result); // to json string
+  $products = json_decode($encoded_products); // to object
 
-    return $result;
+  function imgUrl($url, $size){
+    $parts = explode(".", $url);
+    $idx = count($parts) - 2;
+    $name = $parts[$idx]."-".$size;
+    $parts[$idx] = $name;
+    return implode(".", $parts);
   }
-
-  // Request AccessToken
-  $authUrl = "https://$client_id:$client_secret@auth.sphere.io/oauth/token";
-  $data = array("grant_type" => "client_credentials", "scope" => "manage_project:$project_key");
-  $options = array(
-    'http' => array(
-      'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
-      'method'  => 'POST',
-      'content' => http_build_query($data),
-    ),
-  );
-  $context = stream_context_create($options);
-  $authResult = makeRequest($authUrl, $context);
-  $access_token = $authResult["access_token"];
-
-  // Fetch products
-  $productUrl = "https://api.sphere.io/$project_key/product-projections";
-  $options = array(
-    'http' => array(
-      'header'  => "Authorization: Bearer $access_token",
-      'method'  => 'GET'
-    ),
-  );
-  $c = stream_context_create($options);
-  $products = makeRequest($productUrl, $c);
-
-  // Print result as JSON
-  header('Content-Type: application/json');
-  echo json_encode($products);
+  foreach($products->results as $product) {
 ?>
+<div style="height: 190px;
+  width: 155px;
+  margin: 10px 25px 0 0;
+  float: left;
+  font-size: 11px;
+  color: #6d778e;
+  font-family: 'Open Sans',sans-serif;
+  font-weight: 400;
+  ">
+  <a href="#" style="color: #00b5de;">
+    <img src="<?= count($product->masterVariant->images) > 0 ? imgUrl($product->masterVariant->images[0]->url, "small") : "http://placehold.it/165.png" ?>" style="width: 140px;
+      height: 140px;
+      display: block;
+      padding: 4px;
+      max-width: 100%;
+      vertical-align: middle;
+      background-color: #fff;
+      border: 1px solid rgba(0,0,0,0.2);
+      -webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      -moz-box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      ">
+    <span style="text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      display: block;
+      "><?= $product->name->en ?></span>
+  </a>
+  <span style="text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    "><?= count($product->variants) ?> Variants</span>
+</div>
+<?php } ?>
