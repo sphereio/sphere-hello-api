@@ -42,27 +42,26 @@
         
         self.window.rootViewController = self.splitViewController;
     }
-    
+
     NSString *path = [[NSBundle mainBundle] pathForResource:@"project" ofType:@"plist"];
     NSDictionary *settings = [[NSDictionary alloc] initWithContentsOfFile:path];
-    
     NSString *projectKey    = [settings objectForKey:@"projectKey"];
     NSString *clientId      = [settings objectForKey:@"clientId"];
     NSString *clientSecret  = [settings objectForKey:@"clientSecret"];
-    
-    [self getProducts:projectKey clientId:clientId clientSecret:clientSecret];
+
+    [self fetchAuthorization:projectKey clientId:clientId clientSecret:clientSecret];
     [self.window makeKeyAndVisible];
     return YES;
 }
 
-- (NSArray*)getProducts:(NSString *)projectKey clientId:(NSString *)clientId clientSecret:(NSString *)clientSecret
+- (NSArray*)fetchAuthorization:(NSString *)projectKey clientId:(NSString *)clientId clientSecret:(NSString *)clientSecret
 {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://auth.sphere.io/oauth/token"]];
     request.HTTPMethod = @"POST";
     [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     
-    NSString *auth      = [NSString stringWithFormat:@"%@ : %@", clientId, clientSecret];
-    NSString *header    = [NSString stringWithFormat:@"Basic: %@", [auth base64String]];
+    NSString *auth      = [NSString stringWithFormat:@"%@:%@", clientId, clientSecret];
+    NSString *header    = [NSString stringWithFormat:@"Basic %@", [auth base64String]];
     [request setValue:header forHTTPHeaderField:@"Authorization"];
     
     NSString *body = [NSString stringWithFormat:@"grant_type=client_credentials&scope=manage_project:%@", projectKey];
