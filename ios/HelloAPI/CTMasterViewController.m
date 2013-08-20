@@ -11,7 +11,7 @@
 #import "CTDetailViewController.h"
 
 @interface CTMasterViewController () {
-    NSMutableArray *_objects;
+    NSMutableDictionary *_imageCache;
 }
 @end
 
@@ -21,6 +21,7 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
+        _imageCache = [NSMutableDictionary dictionary];
         self.title = NSLocalizedString(@"Products", @"Products");
         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
             self.clearsSelectionOnViewWillAppear = NO;
@@ -48,10 +49,6 @@
 
 - (void)insertNewObject:(id)sender
 {
-    if (!_objects) {
-        _objects = [[NSMutableArray alloc] init];
-    }
-    [_objects insertObject:[NSDate date] atIndex:0];
     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
     [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
@@ -87,8 +84,30 @@
         }
     }
     
-    NSDictionary *names = [[self.products objectAtIndex:indexPath.row] objectForKey:@"name"];
+    NSMutableDictionary *product = [[self.products objectAtIndex:indexPath.row] mutableCopy];
+    NSDictionary *names = [product objectForKey:@"name"];
     cell.textLabel.text = [names objectForKey:@"en"];
+    
+    NSString *image = [[[[product objectForKey:@"masterVariant"] objectForKey:@"images"] objectAtIndex:0] objectForKey:@"url"];
+    NSString *url = [image stringByReplacingOccurrencesOfString:@".jpg" withString:@"-thumb.jpg"];
+    NSString *uuid = [product objectForKey:@"id"];
+    
+    if (image){
+        UIImage *image = [_imageCache objectForKey:uuid];
+        
+        if(image){
+            cell.imageView.image = image;
+        }
+        else{
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:url]];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [_imageCache setObject:[UIImage imageWithData:data] forKey:uuid];
+                    [tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
+                });
+            });
+        }
+    }
     return cell;
 }
 
@@ -101,7 +120,6 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
-        [_objects removeObjectAtIndex:indexPath.row];
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
     } else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
@@ -126,7 +144,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    NSDate *object = _objects[indexPath.row];
+    NSDictionary *object = self.products[indexPath.row];
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
 	    if (!self.detailViewController) {
 	        self.detailViewController = [[CTDetailViewController alloc] initWithNibName:@"CTDetailViewController_iPhone" bundle:nil];
