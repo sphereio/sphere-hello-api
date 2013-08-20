@@ -87,7 +87,6 @@
         }
     }
     
-    NSLog(@"hello");
     NSDictionary *names = [[self.products objectAtIndex:indexPath.row] objectForKey:@"name"];
     cell.textLabel.text = [names objectForKey:@"en"];
     return cell;
