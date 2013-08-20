@@ -54,7 +54,7 @@
     return YES;
 }
 
-- (NSArray*)fetchAuthorization:(NSString *)projectKey clientId:(NSString *)clientId clientSecret:(NSString *)clientSecret
+- (void)fetchAuthorization:(NSString *)projectKey clientId:(NSString *)clientId clientSecret:(NSString *)clientSecret
 {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:@"https://auth.sphere.io/oauth/token"]];
     request.HTTPMethod = @"POST";
@@ -69,8 +69,9 @@
     
     AFJSONRequestOperation *operation =
     [AFJSONRequestOperation JSONRequestOperationWithRequest:request
-                                                    success:^(NSURLRequest *request, NSHTTPURLResponse *response, id JSON) {
-                                                        NSLog(@"%@", JSON);
+                                                    success:^(NSURLRequest *request, NSHTTPURLResponse *response, id json) {
+                                                        NSDictionary *dict = (NSDictionary*) json;
+                                                        [self fetchProducts:projectKey token:[dict objectForKey:@"access_token"]];
                                                     }
                                                     failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
                                                         UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"Authenticateion error"
@@ -81,9 +82,34 @@
                                                     }];
     
     [operation start];
-    
-    return [NSArray arrayWithObject:@""];
 }
+
+- (void)fetchProducts:(NSString *)projectKey token:(NSString *)token
+{
+    NSString * url = [NSString stringWithFormat: @"https://api.sphere.io/%@/product-projections", projectKey];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
+    
+    NSString *header = [NSString stringWithFormat:@"Bearer %@", token];
+    [request setValue:header forHTTPHeaderField:@"Authorization"];
+    
+    AFJSONRequestOperation *operation =
+    [AFJSONRequestOperation JSONRequestOperationWithRequest:request
+                                                    success:^(NSURLRequest *request, NSHTTPURLResponse *response, id json) {
+                                                        NSDictionary *dict = (NSDictionary*) json;
+                                                        NSArray *results = [dict objectForKey:@"results"];
+                                                        NSLog(@"%@", results);
+                                                    }
+                                                    failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
+                                                        UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"Error fetching products"
+                                                                                                     message:[NSString stringWithFormat:@"%@",error]
+                                                                                                    delegate:nil
+                                                                                           cancelButtonTitle:@"OK" otherButtonTitles:nil];
+                                                        [av show];
+                                                    }];
+    
+    [operation start];
+}
+
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
