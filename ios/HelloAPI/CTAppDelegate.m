@@ -25,17 +25,19 @@
     // Override point for customization after application launch.
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
         CTMasterViewController *masterViewController = [[CTMasterViewController alloc] initWithNibName:@"CTMasterViewController_iPhone" bundle:nil];
+        self.masterViewController = masterViewController;
         self.navigationController = [[UINavigationController alloc] initWithRootViewController:masterViewController];
         self.window.rootViewController = self.navigationController;
     } else {
         CTMasterViewController *masterViewController = [[CTMasterViewController alloc] initWithNibName:@"CTMasterViewController_iPad" bundle:nil];
+        self.masterViewController = masterViewController;
         UINavigationController *masterNavigationController = [[UINavigationController alloc] initWithRootViewController:masterViewController];
         
         CTDetailViewController *detailViewController = [[CTDetailViewController alloc] initWithNibName:@"CTDetailViewController_iPad" bundle:nil];
         UINavigationController *detailNavigationController = [[UINavigationController alloc] initWithRootViewController:detailViewController];
-    	
-    	masterViewController.detailViewController = detailViewController;
-    	
+        
+        masterViewController.detailViewController = detailViewController;
+        
         self.splitViewController = [[UISplitViewController alloc] init];
         self.splitViewController.delegate = detailViewController;
         self.splitViewController.viewControllers = @[masterNavigationController, detailNavigationController];
@@ -96,8 +98,9 @@
     [AFJSONRequestOperation JSONRequestOperationWithRequest:request
                                                     success:^(NSURLRequest *request, NSHTTPURLResponse *response, id json) {
                                                         NSDictionary *dict = (NSDictionary*) json;
-                                                        NSArray *results = [dict objectForKey:@"results"];
-                                                        NSLog(@"%@", results);
+                                                        NSArray *products = [dict objectForKey:@"results"];
+                                                        self.masterViewController.products = products;
+                                                        [self.masterViewController.tableView reloadData];                                                        
                                                     }
                                                     failure:^(NSURLRequest *request, NSHTTPURLResponse *response, NSError *error, id JSON) {
                                                         UIAlertView *av = [[UIAlertView alloc] initWithTitle:@"Error fetching products"

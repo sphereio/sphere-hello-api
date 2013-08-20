@@ -14,4 +14,6 @@
 
 @property (strong, nonatomic) CTDetailViewController *detailViewController;
 
+@property (strong, nonatomic) NSArray *products;
+
 @end

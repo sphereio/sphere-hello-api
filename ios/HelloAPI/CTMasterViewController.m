@@ -21,7 +21,7 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        self.title = NSLocalizedString(@"Master", @"Master");
+        self.title = NSLocalizedString(@"Products", @"Products");
         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
             self.clearsSelectionOnViewWillAppear = NO;
             self.contentSizeForViewInPopover = CGSizeMake(320.0, 600.0);
@@ -65,7 +65,13 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return _objects.count;
+    if (self.products){
+        return self.products.count;
+    }
+    else{
+        return 0;
+    }
+
 }
 
 // Customize the appearance of table view cells.
@@ -80,17 +86,17 @@
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
         }
     }
-
-
-    NSDate *object = _objects[indexPath.row];
-    cell.textLabel.text = [object description];
+    
+    NSLog(@"hello");
+    NSDictionary *names = [[self.products objectAtIndex:indexPath.row] objectForKey:@"name"];
+    cell.textLabel.text = [names objectForKey:@"en"];
     return cell;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // Return NO if you do not want the specified item to be editable.
-    return YES;
+    return NO;
 }
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath

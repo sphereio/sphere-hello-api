@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "CTMasterViewController.h"
 
 @interface CTAppDelegate : UIResponder <UIApplicationDelegate>
 
@@ -15,5 +16,7 @@
 @property (strong, nonatomic) UINavigationController *navigationController;
 
 @property (strong, nonatomic) UISplitViewController *splitViewController;
+
+@property (strong, nonatomic) CTMasterViewController *masterViewController;
 
 @end
