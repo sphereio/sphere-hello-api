@@ -8,8 +8,8 @@ import dispatch._
 import net.liftweb.json._
 
 object SphereHello extends App {
-  val api = "https://api.sphere.io/"
-  val auth_api = "https://auth.sphere.io/oauth/token"
+  val ApiUrl = "https://api.sphere.io/"
+  val AuthApiUrl = "https://auth.sphere.io/oauth/token"
 
   //see configuration file scala/src/main/resources/application.conf
   val conf = ConfigFactory.load()
@@ -22,7 +22,7 @@ object SphereHello extends App {
   /** @return oauth access token */
   def login(clientId: String, clientSecret: String, projectKey: String): Future[String] = {
     val encoded = Base64.encode(s"${clientId}:${clientSecret}".getBytes)
-    h(url(auth_api).POST
+    h(url(AuthApiUrl).POST
       .setHeader("Authorization", s"Basic ${encoded}")
       .setHeader("Content-Type", "application/x-www-form-urlencoded")
       .setBody(s"grant_type=client_credentials&scope=manage_project:${projectKey}")
@@ -36,7 +36,7 @@ object SphereHello extends App {
     * @return <a href="HTTP_API.html#paged-query-response">PagedQueryResult</a>
     *         with the <code>results</code> array of <a href="#product-projection">ProductProjection</a> JSON. */
   def getProducts(oauthToken: String): Future[JValue] = {
-    h(url(s"${api}${projectKey}/product-projections").setHeader("Authorization", s"Bearer ${oauthToken}"))
+    h(url(s"${ApiUrl}${projectKey}/product-projections").setHeader("Authorization", s"Bearer ${oauthToken}"))
       .map(rsp => parse(rsp.getResponseBody))
   }
 
