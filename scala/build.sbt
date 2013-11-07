@@ -1,6 +1,6 @@
 name := "sphere-hello-api"
 
-description := "An example application that authenticates and accesses a project using SPHERE.IO API"
+description := "An example application that authenticates and access project data using SPHERE.IO API"
 
 scalaVersion := "2.10.3"
 
