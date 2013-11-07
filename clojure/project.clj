@@ -5,4 +5,5 @@
   	[[org.clojure/clojure "1.5.1"] 
   	 [clj-http "0.7.7"]
   	 [org.clojure/data.codec "0.1.0"]
-  	 [org.clojure/data.json "0.2.3"]])
+  	 [org.clojure/data.json "0.2.3"]
+  	 [sonian/carica "1.0.3"]])
