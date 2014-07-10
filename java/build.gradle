@@ -1,6 +1,10 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.4'
+}
+
 mainClassName = "HelloApi"
 
 repositories {
