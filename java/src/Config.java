@@ -1,6 +1,7 @@
 import io.sphere.client.shop.SphereClientConfig;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Properties;
 
 public final class Config {
@@ -10,7 +11,7 @@ public final class Config {
         p.load(new FileInputStream(filename));
         checkValid(p);
         return new SphereClientConfig.Builder(
-                p.getProperty("projectKey"), p.getProperty("clientId"), p.getProperty("clientSecret")).build();
+                p.getProperty("projectKey"), p.getProperty("clientId"), p.getProperty("clientSecret"), Locale.ENGLISH).build();
     }
 
     private static void checkValid(Properties p) {

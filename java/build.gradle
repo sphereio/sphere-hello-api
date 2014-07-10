@@ -9,13 +9,10 @@ mainClassName = "HelloApi"
 
 repositories {
     mavenCentral()
-    maven {
-        url 'http://public-repo.ci.cloud.commercetools.de/content/repositories/releases'
-    }
 }
 
 dependencies {
-    compile 'io.sphere:sphere-java-client:0.33'
+    compile 'io.sphere:sphere-java-client:0.60.0'
 }
 
 sourceSets {
