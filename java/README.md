@@ -7,7 +7,15 @@ A Java example using Sphere Java Client to list all products in your project.
 
 Add your project key, client id and secret to `config.properties`.
 
+### Mac and Linux
+
 ```bash
-$ gradle run
+$ ./gradlew run
+```
+
+### Windows
+
+```bash
+$ gradlew run
 ```
 

@@ -13,5 +13,6 @@ public class HelloApi {
         for (Product product : sphere.products().all().fetch().getResults()) {
             System.out.println(product.getName());
         }
+        sphere.shutdown();
     }
 }

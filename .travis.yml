@@ -1,0 +1,13 @@
+language: java
+script:
+- bash create_config.sh && cd java && ./gradlew run
+jdk:
+- openjdk6
+- openjdk7
+- oraclejdk7
+- oraclejdk8
+env:
+  global:
+  - secure: ISBTx5dCLRYtT+vp5MXFiZoJMF9l/I+W40fCIGp/OYJVm5uX3QdY9tqmPPJtHyGNYC/U2MNrhg/Z+8opwxQ931e9kCUfg/7nk6EX8t0gYV4tMKkaqr+NJ7S7uyu8SrFbcwABzUo5/91ujKkrsp/R5yQ/kCggDND+utpEVSWB9LY=
+  - secure: cTja//s9O9IYrCOgjeFp4j0MJzVfjCnADlF69hPQsLaJNAPAGc6JRcUeaOeVZHSMI3y3qh4IGgfAm3QuxyUFTn5RP0OVpDAYri29Ubn7SYA55cho7K+YUZbrnCFuFMypZ8dVVbdZA2cFefUUnVhuGXHFlVUWUPUwUFd0o2oSw5Y=
+  - secure: j3EAxprAcKq4aaGn/WA9VKn41C9Kismp/I0caLWP6k2dZvk1SZGnaiZXuAeqLxQMQ4cU4WH6qupnxCb/oS+0OxIe6UE7QAM7Xk8e5jp52NTubCkBJH04gi3BSVapLtDK1ePerNJuwOo0LZh9hwGwMWGy2XEZe59B5V50vvyp8Qo=
