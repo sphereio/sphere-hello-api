@@ -19,6 +19,10 @@
   "engines": {
     "node": ">= 0.10.x"
   },
+  "scripts": {
+    "start": "grunt serve",
+    "test": "grunt test"
+  },
   "dependencies": {
     "bluebird": "2.3.x",
     "body-parser": "1.9.x",
@@ -41,7 +45,10 @@
     "grunt-contrib-coffee": "0.10.1",
     "grunt-contrib-watch": "0.6.1",
     "grunt-express-server": "0.4.x",
+    "grunt-shell": "0.7.0",
+    "jasmine-node": "1.13.1",
     "load-grunt-tasks": "1.0.x",
+    "request": "2.34.x",
     "sphere-coffeelint": "git://github.com/sphereio/sphere-coffeelint.git#master"
   }
 }

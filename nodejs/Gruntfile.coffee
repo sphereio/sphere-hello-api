@@ -19,7 +19,7 @@ module.exports = (grunt) ->
       default:
         files: [{
           dot: true
-          src: ['lib']
+          src: ['lib', 'test']
         }]
 
     # compiles coffeescript
@@ -30,7 +30,23 @@ module.exports = (grunt) ->
       default:
         files: grunt.file.expandMapping(['**/*.coffee'], 'lib/',
           flatten: false
-          cwd: 'src'
+          cwd: 'src/coffee'
+          ext: '.js'
+          rename: (dest, matchedSrcPath) ->
+            dest + matchedSrcPath
+          )
+      test:
+        files: grunt.file.expandMapping(['**/*.spec.coffee'], 'test/',
+          flatten: false
+          cwd: 'src/spec'
+          ext: '.spec.js'
+          rename: (dest, matchedSrcPath) ->
+            dest + matchedSrcPath
+          )
+      testHelpers:
+        files: grunt.file.expandMapping(['**/*Helper.coffee'], 'test/',
+          flatten: false
+          cwd: 'src/spec'
           ext: '.js'
           rename: (dest, matchedSrcPath) ->
             dest + matchedSrcPath
@@ -45,6 +61,11 @@ module.exports = (grunt) ->
         options:
           node_env: 'development'
           script: 'lib/app.js'
+      test:
+        options:
+          output: 'Listening' # waits for matching message before passing control back to grunt
+          node_env: 'test'
+          script: "lib/app.js"
 
     # watching for changes
     watch:
@@ -58,5 +79,15 @@ module.exports = (grunt) ->
         ]
         tasks: ['build', 'express']
 
+    shell:
+      options:
+        stdout: true
+        stderr: true
+        failOnError: true
+      jasmine:
+        command: 'jasmine-node --verbose --captureExceptions test'
+
   grunt.registerTask 'build', ['clean', 'coffee']
-  grunt.registerTask 'serve', ['build', 'express', 'watch']
+  grunt.registerTask 'run', ['build', 'express:run']
+  grunt.registerTask 'serve', ['run', 'watch']
+  grunt.registerTask 'test', ['build', 'express:test', 'shell:jasmine']
