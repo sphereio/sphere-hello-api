@@ -4,6 +4,8 @@
 
 This is an example application to show how easy is to use the SPHERE.IO API using an Express.js application.
 
+**Make sure to have some Products and Categories in your project if you want to see something**
+
 ```bash
 $ npm install -g grunt-cli && npm install
 $ grunt serve
