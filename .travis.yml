@@ -1,6 +1,10 @@
-language: java
+language:
+- java
+- scala
 script:
-- bash create_config.sh && cd java && ./gradlew run
+- bash create_config.sh
+- cd java && ./gradlew run
+- cd scala && sbt run
 jdk:
 - openjdk6
 - openjdk7

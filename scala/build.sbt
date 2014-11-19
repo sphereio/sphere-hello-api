@@ -2,7 +2,7 @@ name := "sphere-hello-api"
 
 description := "An example application that authenticates and access project data using SPHERE.IO API"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.10.4"
 
 libraryDependencies ++= Seq(
   "net.databinder.dispatch" %% "dispatch-core" % "0.10.0",
