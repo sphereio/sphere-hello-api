@@ -3,8 +3,9 @@ language:
 - scala
 script:
 - bash create_config.sh
-- cd java && ./gradlew run
-- cd scala && sbt run
+- projects_dir=$(pwd)
+- cd $projects_dir/java && ./gradlew run
+- cd $projects_dir/scala && sbt run
 jdk:
 - openjdk6
 - openjdk7
