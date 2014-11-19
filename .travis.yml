@@ -3,13 +3,11 @@ language:
 - python
 python:
   - "2.7"
-install:
-  - "pip install -r python/requirements.txt"
 script:
 - bash create_config.sh
 - projects_dir=$(pwd)
+- cd $projects_dir/python && sudo pip install -r requirements.txt && ./hello-api
 - cd $projects_dir/java && ./gradlew run
-- cd $projects_dir/python && ./hello-api
 jdk:
 - openjdk6
 - openjdk7
