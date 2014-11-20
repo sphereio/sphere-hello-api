@@ -2,7 +2,7 @@ language: java
 script:
 - PROJ_DIR=$(pwd)
 - 'bash create_config.sh && cd "${PROJ_DIR}"/java && ./gradlew run'
-- 'cd "${PROJ_DIR}"/nodejs && npm install -g grunt-cli && npm install && grunt test'
+- 'cd "${PROJ_DIR}"/nodejs && ./create_config.sh && npm install -g grunt-cli && npm install && grunt test'
 jdk:
 - openjdk6
 - openjdk7
