@@ -1,0 +1,46 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
+    meta(http-equiv='content-type', content='text/html; charset=UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+
+
+    title SPHERE.IO&#8482; - #{title}
+    link(rel='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/css/bootstrap.min.css', media='screen')
+    link(rel='stylesheet', href='/assets/stylesheets/main.css', media='screen')
+
+  body
+
+    nav.navbar.navbar-fixed-top.navbar-inverse(role='navigation')
+      div.container
+        div.navbar-header
+          button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
+            span.sr-only Toggle nav
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.navbar-brand(href='/') My Project
+        div#navbar.navbar-collapse.collapse(aria-expanded='false', style='height: 1px;')
+          ul.nav.navbar-nav
+            li.active
+              a(href='/') Home
+
+    div.container
+
+      block content
+
+      hr
+      footer
+        p © SPHERE.IO 2014
+
+    script(src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js')
+    script(src='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.min.js')
+
+    script.
+      $(document).ready(function () {
+        $('body').on('click', '*[data-toggle=offcanvas]', function () {
+          $('.row-offcanvas').toggleClass('active')
+        });
+      });
