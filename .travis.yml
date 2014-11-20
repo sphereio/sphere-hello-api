@@ -1,7 +1,8 @@
 language: java
 script:
-- bash create_config.sh && cd java && ./gradlew run
-- cd nodejs && npm install -g grunt-cli && npm install && grunt test
+- projects_dir=$(pwd)
+- bash create_config.sh && cd $project_dir/java && ./gradlew run
+- cd $project_dir/nodejs && npm install -g grunt-cli && npm install && grunt test
 jdk:
 - openjdk6
 - openjdk7
