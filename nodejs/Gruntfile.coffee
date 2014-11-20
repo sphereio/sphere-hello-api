@@ -88,6 +88,6 @@ module.exports = (grunt) ->
         command: 'jasmine-node --verbose --captureExceptions test'
 
   grunt.registerTask 'build', ['clean', 'coffee']
-  grunt.registerTask 'run', ['build', 'express:run']
+  grunt.registerTask 'run', ['build', 'express:default']
   grunt.registerTask 'serve', ['run', 'watch']
   grunt.registerTask 'test', ['build', 'express:test', 'shell:jasmine']
