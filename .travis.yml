@@ -4,7 +4,7 @@ script:
 - export expected_product_count=5
 - export projects_dir=$(pwd)
 - cd $projects_dir/java && ./gradlew run
-- cd $projects_dir/scala && sbt run | grep "Number of products: $expected_product_count"
+- cd $projects_dir/scala && export expected_output="Number of products: $expected_product_count" && sbt run | grep "$expected_output"
 jdk:
 - openjdk6
 - openjdk7
