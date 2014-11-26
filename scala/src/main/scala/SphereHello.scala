@@ -19,7 +19,7 @@ object SphereHello extends App {
   
   val h = new Http(new AsyncHttpClient)
 
-  def prettyResponeBody(resp: Response) =
+  def prettyResponseBody(resp: Response) =
     parseOpt(resp.getResponseBody) map (json => pretty(render(json))) getOrElse resp.getResponseBody
 
   /** @return oauth access token */
@@ -33,7 +33,7 @@ object SphereHello extends App {
       case (200, Some(JString(s))) => s
       case (status, _) =>
         throw new IllegalStateException("Auth response does not contain 'access_token'. " +
-          s"HTTP status: $status. ${prettyResponeBody(rsp)}")
+          s"HTTP status: $status. ${prettyResponseBody(rsp)}")
     })
   }
   
@@ -51,7 +51,7 @@ object SphereHello extends App {
         case (200, Some(JInt(total))) => total
         case (status, _) =>
           throw new IllegalStateException("Product query response is invalid ot does not contain 'total'. " +
-            s"HTTP status $status. ${prettyResponeBody(productResp)}")
+            s"HTTP status $status. ${prettyResponseBody(productResp)}")
       }
 
     val nrOfProducts = Await.result(f, Duration.Inf)

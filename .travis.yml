@@ -1,10 +1,11 @@
 language: java
 script:
 - bash create_config.sh
-- projects_dir=$(pwd)
-- expected_product_count=5
+- export expected_product_count=5
+- export projects_dir=$(pwd)
 - cd $projects_dir/curl && sudo apt-get install jq && ./hello-api | grep $expected_product_count
 - cd $projects_dir/java && ./gradlew run
+- cd $projects_dir/scala && sbt run | grep 'Number of products'
 jdk:
 - openjdk6
 - openjdk7
