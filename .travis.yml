@@ -1,8 +1,9 @@
 language: java
 script:
 - bash create_config.sh
-- projects_dir=$(pwd)
-- cd $projects_dir/python && sudo pip install -r requirements.txt && ./hello-api
+- export projects_dir=$(pwd)
+- cd $projects_dir/python2 && sudo pip install -r requirements.txt && ./hello-api | grep "MB PREMIUM TECH T"
+- cd $projects_dir/python3 && sudo apt-get install python3-pip && sudo pip3 install -r requirements.txt && ./hello-api | grep "MB PREMIUM TECH T"
 - cd $projects_dir/java && ./gradlew run
 jdk:
 - openjdk6
