@@ -1,11 +1,10 @@
-language:
-- java
-- scala
+language: java
 script:
 - bash create_config.sh
+- expected_product_count=5
 - projects_dir=$(pwd)
 - cd $projects_dir/java && ./gradlew run
-- cd $projects_dir/scala && sbt run
+- cd $projects_dir/scala && sbt run | grep "Number of products: $expected_product_count"
 jdk:
 - openjdk6
 - openjdk7

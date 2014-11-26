@@ -2,10 +2,11 @@ name := "sphere-hello-api"
 
 description := "An example application that authenticates and access project data using SPHERE.IO API"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.4"
 
-libraryDependencies ++= Seq(
-  "net.databinder.dispatch" %% "dispatch-core" % "0.10.0",
-  "net.liftweb" %% "lift-json" % "2.5-RC5",
-  "com.typesafe" % "config" % "1.0.0"
-)
+libraryDependencies ++=
+  "net.databinder.dispatch" %% "dispatch-core" % "0.11.2" ::
+  "net.liftweb" %% "lift-json" % "2.6-RC2" ::
+  "com.typesafe" % "config" % "1.2.1" ::
+  "ch.qos.logback" % "logback-classic" % "1.1.2" ::
+  Nil
