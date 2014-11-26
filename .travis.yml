@@ -3,7 +3,7 @@ script:
 - bash create_config.sh
 - export projects_dir=$(pwd)
 - cd $projects_dir/python2 && sudo pip install -r requirements.txt && ./hello-api | grep "MB PREMIUM TECH T"
-- cd $projects_dir/python3 && sudo apt-get install python3-pip && sudo pip3 install -r requirements.txt && ./hello-api | grep "MB PREMIUM TECH T"
+- cd $projects_dir/python3 && sudo apt-get install python3-setuptools && sudo easy_install3 pip && sudo pip install -r requirements.txt && ./hello-api | grep "MB PREMIUM TECH T"
 - cd $projects_dir/java && ./gradlew run
 jdk:
 - openjdk6
