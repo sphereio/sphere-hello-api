@@ -1,8 +1,4 @@
-language:
-- java
-- python
-python:
-  - "2.7"
+language: java
 script:
 - bash create_config.sh
 - projects_dir=$(pwd)
