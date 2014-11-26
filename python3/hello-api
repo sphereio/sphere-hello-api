@@ -5,12 +5,11 @@ import requests
 import config
 
 def login(client_id, client_secret, project_key):
-    encoded = base64.b64encode(("%s:%s" % (client_id, client_secret)).encode('utf-8'))
-    headers = { 'Authorization' : "Basic %s" % encoded,
-                'Content-Type'  : 'application/x-www-form-urlencoded' }
+    headers = { 'Content-Type' : 'application/x-www-form-urlencoded' }
     body = "grant_type=client_credentials&scope=manage_project:%s" % project_key
     url = "https://auth.sphere.io/oauth/token"
-    r = requests.post(url, data=body, headers=headers)
+    auth = (client_id, client_secret)
+    r = requests.post(url, data=body, headers=headers, auth=auth)
     if r.status_code is 200:
         return r.json()
     else:
