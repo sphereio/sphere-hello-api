@@ -1,6 +1,10 @@
 language: java
 script:
-- bash create_config.sh && cd java && ./gradlew run
+- bash create_config.sh
+- projects_dir=$(pwd)
+- expected_product_count=5
+- cd $projects_dir/curl && sudo apt-get install jq && ./hello-api | grep $expected_product_count
+- cd $projects_dir/java && ./gradlew run
 jdk:
 - openjdk6
 - openjdk7
