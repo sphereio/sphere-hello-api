@@ -39,3 +39,11 @@ cat > "php/config.php" << EOF
   \$project_key = '$PROJECT_KEY';
 ?>
 EOF
+
+cat > "go/config.json" << EOF
+{
+  "client_id": "$CLIENT_ID",
+  "client_secret": "$CLIENT_SECRET",
+  "project_key": "$PROJECT_KEY"
+}
+EOF
