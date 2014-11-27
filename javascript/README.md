@@ -1,26 +1,17 @@
-Javascript Hello on SPHERE.IO
-=============================
+![SPHERE.IO icon](https://admin.sphere.io/assets/images/sphere_logo_rgb_long.png)
+
+# Javascript Hello API
 
 A Javascript example to authenticate your application to [SPHERE.IO](http://sphere.io) and get the products in your project.
 
-## Setup
-
-Create a property file with the credentials
-```
-CLIENT_ID='client_id'
-CLIENT_SECRET='client_secret'
-PROJECT_KEY='project_key'
-```
-
 ## Get access token
-
 As CORS are not allowed to the Auth service, we get the `access_token` with a bash script, simply run
+
 ```bash
-$ cd bin
-$ ./main -f ../config.me
+$ ./bin/get_token --client_id "${CLIENT_ID}" --client_secret "${CLIENT_SECRET}" --project_key "${PROJECT_KEY}"
 ```
 
-This will print the credentials into `config.js`, loaded then HTML webpage.
+This will print the credentials into `token.js`, loaded then from HTML page.
 
 ## Run
 
