@@ -31,3 +31,11 @@ PROJECT_KEY = "$PROJECT_KEY"
 CLIENT_ID = "$CLIENT_ID"
 CLIENT_SECRET = "$CLIENT_SECRET"
 EOF
+
+cat > "php/config.php" << EOF
+<?php
+  \$client_id = '$CLIENT_ID';
+  \$client_secret = '$CLIENT_SECRET';
+  \$project_key = '$PROJECT_KEY';
+?>
+EOF
