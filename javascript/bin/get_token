@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+
+var fs = require('fs')
+var path = require('path')
+var request = require('request')
+var argv = require('minimist')(process.argv.slice(2))
+
+request({
+  uri: 'https://' + argv.client_id + ':' + argv.client_secret + '@auth.sphere.io/oauth/token',
+  json: true,
+  method: 'POST',
+  body: 'grant_type=client_credentials&scope=manage_project:' + argv.project_key,
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  }
+}, function(e, r, b) {
+  if (e) {
+    console.error(e)
+    process.exit(1)
+  } else {
+    var data = 'var token = { project_key: \'' + argv.project_key + '\', access_token: \'' + b.access_token + '\' }'
+    fs.writeFileSync(path.join(__dirname + '/../token.js'), data, {encoding: 'utf-8'})
+    console.log('Access token generated:')
+    process.exit(0)
+  }
+})
