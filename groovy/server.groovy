@@ -4,7 +4,7 @@ import groovy.servlet.*
 import groovy.json.JsonSlurper
 import javax.xml.bind.DatatypeConverter
 
-@Grab(group='org.eclipse.jetty.aggregate', module='jetty-all', version='7.6.16.v20140903')
+@Grab(group='org.eclipse.jetty.aggregate', module='jetty-all', version='7.6.0.v20120127')
 
 def config = new ConfigSlurper().parse(new File('config.groovy').toURI().toURL())
 
