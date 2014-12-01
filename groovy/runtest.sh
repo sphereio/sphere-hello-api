@@ -5,6 +5,7 @@ set -x
 set -e
 
 sudo apt-get install groovy || true
+grape install org.eclipse.jetty.aggregate jetty-all 7.6.0.v20120127
 chmod +x ./server.groovy
 # do not use nohup because we want the return code in $! and the output visible  
 groovy ./server.groovy & 
