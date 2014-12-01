@@ -4,9 +4,10 @@ import groovy.servlet.*
 import groovy.json.JsonSlurper
 import javax.xml.bind.DatatypeConverter
 
-@Grab(group='org.eclipse.jetty.aggregate', module='jetty-server', version='7.6.0.v20120127')
-@Grab(group='org.eclipse.jetty.aggregate', module='jetty-servlet', version='7.6.0.v20120127')
-@Grab(group='javax.servlet', module='servlet-api', version='2.5')
+@Grapes([
+    @Grab(group='org.eclipse.jetty.aggregate', module='jetty-server', version='7.6.0.v20120127'),
+    @Grab(group='org.eclipse.jetty.aggregate', module='jetty-servlet', version='7.6.0.v20120127'),
+    @Grab(group='javax.servlet', module='servlet-api', version='2.5')])
 
 def config = new ConfigSlurper().parse(new File('config.groovy').toURI().toURL())
 
