@@ -5,7 +5,8 @@ This are just two Groovy _scripts_ to play around. For real Groovy-based solutio
 
 
 ## Prerequisite
-* Groovy 1.8.6 (or higher) and a Java 7 JVM (or higher). Working "groovy" (and optinally "grape") command in the path.
+* Groovy 1.8.6 (or higher) on a Java 7 JVM (or higher). Please note: JVM8 is supported only from Groovy 2.3 upwards.  
+* Working "groovy" (and optinally "grape") command in the path.
 * Internet Access 
 
 ## How to run
