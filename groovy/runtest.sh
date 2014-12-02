@@ -14,7 +14,6 @@ groovy -version || true
 java -version || true
 
 # our travis is running on JVM8, too, but Groovy only supports JVM8 since Groovy 2.3, which isn't available on travis.)
-# the second line returns 
 GROOVY_JVM=$(groovy -version 2>&1 | sed 's/.*JVM: \(.*\)\.\(.*\)\..*/\1\2/; 1q')
 
 # if groovy JVM is max 1.7, get stuff and grep for the result
