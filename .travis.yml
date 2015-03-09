@@ -9,7 +9,7 @@ script:
 - cd $projects_dir/java && ./gradlew run
 - cd $projects_dir/scala && sbt run | grep 'Number of products'
 - 'cd $projects_dir/javascript && npm install -g grunt-cli casperjs && npm install && ./bin/get_token --client_id "${CLIENT_ID}" --client_secret "${CLIENT_SECRET}" --project_key "${PROJECT_KEY}" && grunt test'
-- cd $projects_dir/php && sudo apt-get install php5 && php -f index.php | grep -q "MB PREMIUM TECH T"
+- cd $projects_dir/php && sudo apt-get update && apt-get install php5 && php -f index.php | grep -q "MB PREMIUM TECH T"
 - cd $projects_dir/groovy && sudo bash ./runtest.sh
 jdk:
 - openjdk6
