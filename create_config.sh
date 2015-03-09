@@ -47,3 +47,9 @@ cat > "go/config.json" << EOF
   "project_key": "$PROJECT_KEY"
 }
 EOF
+
+cat > "groovy/config.groovy" << EOF
+project_key = "$PROJECT_KEY"
+client_id = "$CLIENT_ID"
+client_secret = "$CLIENT_SECRET"
+EOF
