@@ -45,4 +45,3 @@ project_key = "$PROJECT_KEY"
 client_id = "$CLIENT_ID"
 client_secret = "$CLIENT_SECRET"
 EOF
-
