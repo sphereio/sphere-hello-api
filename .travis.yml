@@ -10,7 +10,7 @@ script:
 - cd $projects_dir/scala && sbt run | grep 'Number of products'
 - 'cd $projects_dir/javascript && npm install -g grunt-cli casperjs && npm install && ./bin/get_token --client_id "${CLIENT_ID}" --client_secret "${CLIENT_SECRET}" --project_key "${PROJECT_KEY}" && grunt test'
 - cd $projects_dir/php && sudo apt-get install php5 && php -f index.php | grep -q "MB PREMIUM TECH T"
-- cd $projects_dir/go && go get github.com/jmoiron/jsonq && go build hello.go && ./hello | grep "Found $expected_product_count products"
+- cd $projects_dir/go && go get github.com/sphereio/jsonq && go build hello.go && ./hello | grep "Found $expected_product_count products"
 jdk:
 - openjdk6
 - openjdk7
