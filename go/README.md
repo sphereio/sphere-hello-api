@@ -18,7 +18,7 @@ Provide a `config.json` file with your SPHERE.IO project credentials
 Now, assuming you have `go` installed, and `$GOPATH` configured, install the script dependecies and compile it
 
 ```bash
-$ go get github.com/jmoiron/jsonq
+$ go get github.com/sphereio/jsonq
 $ go build hello.go
 ```
 

@@ -9,7 +9,7 @@ import (
   "net/http"
   "net/url"
   "strconv"
-  "github.com/jmoiron/jsonq"
+  "github.com/sphereio/jsonq"
 )
 
 type Credentials struct {
