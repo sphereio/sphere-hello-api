@@ -14,5 +14,6 @@ repositories {
 }
 
 dependencies {
-    compile 'io.sphere:sphere-java-client:0.60.0'
+    compile 'io.sphere.sdk.jvm:sphere-models:1.0.0-M24'
+    compile 'io.sphere.sdk.jvm:sphere-java-client:1.0.0-M24'
 }
