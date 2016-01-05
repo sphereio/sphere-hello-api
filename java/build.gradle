@@ -1,6 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'application'
 
+sourceCompatibility = 1.8
+
 task wrapper(type: Wrapper) {
     gradleVersion = '1.4'
 }
@@ -13,10 +15,4 @@ repositories {
 
 dependencies {
     compile 'io.sphere:sphere-java-client:0.60.0'
-}
-
-sourceSets {
-    main {
-        java.srcDir 'src'
-    }
 }
