@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class HelloApi {
     public static void main(String[] args) throws IOException {
-        SphereClient sphere = SphereClient.create(Config.load("src/main/resources/config.properties"));
+        SphereClient sphere = SphereClient.create(Config.load("src/main/resources/commercetools.properties"));
 
         for (Product product : sphere.products().all().fetch().getResults()) {
             System.out.println(product.getName());

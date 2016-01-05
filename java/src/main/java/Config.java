@@ -16,6 +16,6 @@ public final class Config {
 
     private static void checkValid(Properties p) {
         if (p.getProperty("projectKey").equals("my-project-key"))
-            throw new RuntimeException("Please provide your project credentials first. See the 'config.properties' file.");
+            throw new RuntimeException("Please provide your project credentials first. See the 'commercetools.properties' file.");
     }
 }
