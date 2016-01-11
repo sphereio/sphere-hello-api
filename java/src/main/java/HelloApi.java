@@ -16,22 +16,21 @@ import java.util.concurrent.TimeUnit;
 
 public class HelloApi {
     public static void main(String[] args) throws Exception {
-        final SphereClientConfig config = loadCommercetoolsConfig();
-        final SphereClientFactory factory = SphereClientFactory.of();
-        final SphereClient underlyingClient = factory.createClient(config);//this client only works asynchronous
-        try(final BlockingSphereClient client = BlockingSphereClient.of(underlyingClient, 10, TimeUnit.SECONDS)) {
+        try(final BlockingSphereClient client = createCommercetoolsClient()) {
             final ProductProjectionSearch sphereRequest = ProductProjectionSearch.ofCurrent()
-                    .withSort(m -> m.createdAt().byDesc());
+                    .withSort(product -> product.createdAt().byDesc());
             final List<ProductProjection> products = client.executeBlocking(sphereRequest).getResults();
-            for (ProductProjection product : products) {
+            for (final ProductProjection product : products) {
                 System.out.println(product.getName());
             }
         }
     }
 
-    private static SphereClientConfig loadCommercetoolsConfig() throws IOException {
+    private static BlockingSphereClient createCommercetoolsClient() throws IOException {
         final Properties properties = loadPropertiesFromClasspath("commercetools.properties");
-        return SphereClientConfig.ofProperties(properties, "");
+        final SphereClientConfig config = SphereClientConfig.ofProperties(properties, "");
+        final SphereClient underlyingClient = SphereClientFactory.of().createClient(config);//this client only works asynchronous
+        return BlockingSphereClient.of(underlyingClient, 10, TimeUnit.SECONDS);
     }
 
     private static Properties loadPropertiesFromClasspath(final String path) throws IOException {
