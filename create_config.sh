@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat > "java/config.properties" << EOF
+cat > "java/src/main/resources/commercetools.properties" << EOF
 projectKey = $PROJECT_KEY
 clientId = $CLIENT_ID
 clientSecret = $CLIENT_SECRET
