@@ -1,11 +1,5 @@
 #!/bin/bash
 
-cat > "java/src/main/resources/commercetools.properties" << EOF
-projectKey = $PROJECT_KEY
-clientId = $CLIENT_ID
-clientSecret = $CLIENT_SECRET
-EOF
-
 cat > "scala/src/main/resources/application.conf" << EOF
 sphere-hello {
   clientId=$CLIENT_ID
