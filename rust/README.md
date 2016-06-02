@@ -53,7 +53,8 @@ Run the executable
 
 ## Use the library from another Rust application
 
-The library is not published to https://crates.io/ so you must link it locally.
+The `sphere` library is not published to https://crates.io/ so you must link it locally.
+
 Example of a `Cargo.toml`:
 ```
 [package]
