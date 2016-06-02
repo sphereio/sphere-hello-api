@@ -7,12 +7,12 @@ This project contains:
 
 ## Sphere library
 
-The `sphere` library contains the module [`sphere::auth`](/src/auth.rs), used to retrieve an [access token](http://dev.commercetools.com/http-api-authorization.html) to use the API.
+The `sphere` library contains the module [`sphere::auth`](/rust/src/auth.rs), used to retrieve an [access token](http://dev.commercetools.com/http-api-authorization.html) to use the API.
 
 This library follows the Rust standard:
 
 - unit tests are found next to the implementation.
-- integration tests are found in ['/tests'](/tests).
+- integration tests are found in ['/tests'](/rust/tests).
 - code is formatted with [rustfmt](https://github.com/rust-lang-nursery/rustfmt).
 
 ## Prerequisites
@@ -24,7 +24,7 @@ This library follows the Rust standard:
 cargo test
 ```
 
-## Example [fetch_products](/examples/fetch_products.rs)
+## Example [fetch_products](/rust/examples/fetch_products.rs)
 ### Run the example
 
 Usage:
