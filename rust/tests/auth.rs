@@ -1,4 +1,4 @@
-extern crate sphere;
+extern crate commercetools;
 extern crate hyper;
 
 use hyper::server::{Server, Request, Response, Handler};
@@ -19,7 +19,7 @@ fn auth_can_extract_oauth_token() {
 
     with_server(handle,
                 &|url| {
-        let token = sphere::auth::retrieve_token(&url, "project_key", "client_id", "client_secret");
+        let token = commercetools::auth::retrieve_token(&url, "project_key", "client_id", "client_secret");
         assert!(token.is_ok(), "token = {:?}", token);
     });
 }

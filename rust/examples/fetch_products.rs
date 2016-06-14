@@ -3,7 +3,7 @@ extern crate clap;
 #[macro_use]
 extern crate log;
 extern crate env_logger;
-extern crate sphere;
+extern crate commercetools;
 
 use std::io::Read;
 
@@ -32,7 +32,7 @@ fn main() {
     let api_url = matches.value_of("API_URL").unwrap_or("https://api.sphere.io");
 
 
-    let token = sphere::auth::retrieve_token(auth_url, project_key, client_id, client_secret).unwrap();
+    let token = commercetools::auth::retrieve_token(auth_url, project_key, client_id, client_secret).unwrap();
     let access_token = token.access_token();
     debug!("token: {} {}", access_token, token.is_valid());
 
