@@ -14,10 +14,7 @@ pub struct CtpClient {
 }
 
 impl CtpClient {
-    pub fn new(region: &Region,
-               project_key: &str,
-               client_id: &str,
-               client_secret: &str) -> CtpClient {
+    pub fn new(region: &Region, project_key: &str, client_id: &str, client_secret: &str) -> CtpClient {
         CtpClient {
             api_url: region.api_url(),
             auth_url: region.auth_url(),
@@ -28,7 +25,11 @@ impl CtpClient {
     }
 
     pub fn request(&self, uri: &str) -> String {
-        let token = super::auth::retrieve_token(&self.auth_url, &self.project_key, &self.client_id, &self.client_secret).unwrap();
+        let token = super::auth::retrieve_token(&self.auth_url,
+                                                &self.project_key,
+                                                &self.client_id,
+                                                &self.client_secret)
+            .unwrap();
         let access_token = token.access_token();
 
         let mut headers = Headers::new();
@@ -47,5 +48,4 @@ impl CtpClient {
         projets_res.read_to_string(&mut body).unwrap();
         body
     }
-
 }

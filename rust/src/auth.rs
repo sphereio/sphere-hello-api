@@ -93,7 +93,7 @@ pub fn retrieve_token<'a>(auth_url: &str,
                         res.status,
                         read_body)
                 .to_owned())
-        },
+        }
         Ok(mut res) => {
             let mut body = String::new();
             res.read_to_string(&mut body)
@@ -102,11 +102,9 @@ pub fn retrieve_token<'a>(auth_url: &str,
                     debug!("Response from '{}': {}", url, body);
                     json::decode::<TokenFromApi>(&body)
                         .map_err(|err| err.to_string())
-                        .map(|token_from_api| {
-                            Token::new(token_from_api.access_token, token_from_api.expires_in)
-                        })
+                        .map(|token_from_api| Token::new(token_from_api.access_token, token_from_api.expires_in))
                 })
-        },
+        }
         Err(err) => Err(err.to_string()),
     }
 }
