@@ -5,3 +5,5 @@ extern crate chrono;
 extern crate log;
 
 pub mod auth;
+pub mod region;
+pub mod client;
