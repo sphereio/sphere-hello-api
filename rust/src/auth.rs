@@ -59,7 +59,7 @@ struct TokenFromApi {
     expires_in: i64,
 }
 
-/// retrieve an OAuth token for the sphere API
+/// retrieve an [OAuth token](http://dev.commercetools.com/http-api-authorization.html) for the commercetools API
 pub fn retrieve_token<'a>(auth_url: &str,
                           project_key: &str,
                           client_id: &str,

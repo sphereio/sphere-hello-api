@@ -20,12 +20,24 @@ This library follows the Rust standard:
 [Rust](https://www.rust-lang.org/) and [Cargo](https://crates.io/install) must be installed. We advise you to use [rustup](https://github.com/rust-lang-nursery/rustup.rs) to install them.
 
 ## Hack
+### Run the tests
 ```
 cargo test
 ```
 
+### Generate the documentation
+```
+cargo doc
+```
+The documentation is available in `target/doc/commercetools`.
+
 ## Example [fetch_products](/rust/examples/fetch_products.rs)
 ### Run the example
+
+Help:
+```
+cargo run --example fetch_products -- --help
+```
 
 Usage:
 ```
