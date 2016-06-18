@@ -48,6 +48,9 @@ impl CtpClient {
         }
     }
 
+    // TODO (YaSi): avoid cloning the String on each call
+    // return &str?
+    // or use [borrow.Cow](https://doc.rust-lang.org/std/borrow/enum.Cow.html)?
     pub fn get_token(&self) -> String {
         let mut cache = self.token.borrow_mut();
         if cache.is_some() {
