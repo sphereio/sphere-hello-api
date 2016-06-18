@@ -31,6 +31,16 @@ cargo doc
 ```
 The documentation is available in `target/doc/commercetools`.
 
+### Format the code
+Only once:
+```
+cargo install rustfmt
+```
+
+```
+cargo fmt
+```
+
 ## Example [fetch_products](/rust/examples/fetch_products.rs)
 ### Run the example
 

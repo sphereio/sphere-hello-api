@@ -27,7 +27,10 @@ fn main() {
     let region = matches.value_of("region").map(|s| Region::from_str(s).unwrap()).unwrap_or(Region::Europe);
 
     let ctp_client = commercetools::client::CtpClient::new(&region, project_key, client_id, client_secret);
-    let body = ctp_client.request("/products?limit=1");
+    let products = ctp_client.request("/products?limit=1");
+    println!("\nProducts: {}", products);
 
-    println!("Response: {}", body);
+    let categories = ctp_client.request("/categories?limit=1");
+    println!("\nCategories: {}", categories);
+
 }

@@ -1,9 +1,11 @@
 use std::io::Read;
+use std::cell::RefCell;
 
 use hyper::Client;
 use hyper::header::Connection;
 use hyper::header::{Headers, Authorization, Bearer};
 use super::region::Region;
+use super::auth::Token;
 
 /// a commercetools client
 pub struct CtpClient {
@@ -12,6 +14,8 @@ pub struct CtpClient {
     project_key: String,
     client_id: String,
     client_secret: String,
+    client: Client,
+    token: RefCell<Option<Token>>,
 }
 
 impl CtpClient {
@@ -39,21 +43,38 @@ impl CtpClient {
             project_key: project_key.to_string(),
             client_id: client_id.to_string(),
             client_secret: client_secret.to_string(),
+            client: Client::new(),
+            token: RefCell::new(None),
         }
     }
 
-    pub fn request(&self, uri: &str) -> String {
-        let token = super::auth::retrieve_token(&self.auth_url,
-                                                &self.project_key,
-                                                &self.client_id,
-                                                &self.client_secret)
+    pub fn get_token(&self) -> String {
+        let mut cache = self.token.borrow_mut();
+        if cache.is_some() {
+            let token = cache.as_ref().unwrap();
+            if token.is_valid() {
+                return token.access_token.clone();
+            }
+        }
+
+        let new_token = super::auth::retrieve_token(&self.client,
+                                                    &self.auth_url,
+                                                    &self.project_key,
+                                                    &self.client_id,
+                                                    &self.client_secret)
             .unwrap();
-        let access_token = token.access_token();
+
+        *cache = Some(new_token.clone());
+        new_token.access_token
+    }
+
+    pub fn request(&self, uri: &str) -> String {
+        let client = &self.client;
+
+        let access_token = self.get_token();
 
         let mut headers = Headers::new();
         headers.set(Authorization(Bearer { token: access_token }));
-
-        let client = Client::new();
 
         let uri = format!("{}/{}{}", self.api_url, self.project_key, uri);
         let mut projets_res = client.get(&uri)

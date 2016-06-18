@@ -1,21 +1,20 @@
 use std::fmt;
-use std::borrow::Cow;
 use std::io::Read;
 
 use hyper::Client;
-use hyper::header::{Connection, Headers, Authorization, Basic};
+use hyper::header::{Headers, Authorization, Basic};
 use hyper::status::StatusCode;
 use rustc_serialize::json;
 use chrono::*;
 
 /// access token
-#[derive(Debug)]
-pub struct Token<'a> {
-    pub access_token: Cow<'a, str>,
+#[derive(Debug, Clone)]
+pub struct Token {
+    pub access_token: String,
     expires_at: DateTime<UTC>,
 }
 
-impl<'a> fmt::Display for Token<'a> {
+impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f,
                "Token: access_token = {}, expires_at = {}",
@@ -24,19 +23,13 @@ impl<'a> fmt::Display for Token<'a> {
     }
 }
 
-impl<'a> Token<'a> {
-    pub fn new<S>(access_token: S, expires_in_s: i64) -> Token<'a>
-        where S: Into<Cow<'a, str>>
-    {
+impl Token {
+    pub fn new(access_token: String, expires_in_s: i64) -> Token {
         let duration = Duration::seconds(expires_in_s);
         Token {
-            access_token: access_token.into(),
+            access_token: access_token.to_string(),
             expires_at: UTC::now() + duration,
         }
-    }
-
-    pub fn access_token(&self) -> String {
-        self.access_token.as_ref().to_owned()
     }
 
     pub fn is_valid_with_margin(&self, now: DateTime<UTC>, margin: Duration) -> bool {
@@ -60,14 +53,17 @@ struct TokenFromApi {
 }
 
 /// retrieve an [OAuth token](http://dev.commercetools.com/http-api-authorization.html) for the commercetools API
-pub fn retrieve_token<'a>(auth_url: &str,
-                          project_key: &str,
-                          client_id: &str,
-                          client_secret: &str)
-                          -> Result<Token<'a>, String> {
+pub fn retrieve_token(client: &Client,
+                      auth_url: &str,
+                      project_key: &str,
+                      client_id: &str,
+                      client_secret: &str)
+                      -> Result<Token, String> {
 
-    let client = Client::new();
-
+    info!("retrieving a new OAuth token from '{}' for project '{}' with client '{}'",
+          auth_url,
+          project_key,
+          client_id);
     let mut auth_headers = Headers::new();
     auth_headers.set(Authorization(Basic {
         username: client_id.to_owned(),
@@ -78,7 +74,6 @@ pub fn retrieve_token<'a>(auth_url: &str,
                       auth_url,
                       project_key);
     match client.post(&url)
-        .header(Connection::close())
         .headers(auth_headers)
         .send() {
 
@@ -115,31 +110,26 @@ mod tests {
     use chrono::*;
 
     #[test]
-    fn make_auth_token_with_str_slice() {
-        Token::new("token", 60);
-    }
-
-    #[test]
     fn make_auth_token_with_owned_string() {
         Token::new(String::from("token"), 60);
     }
 
     #[test]
     fn token_is_valid_before_expiration_date() {
-        let token = Token::new("", 60);
+        let token = Token::new("".to_string(), 60);
         assert!(token.is_valid());
     }
 
     #[test]
     fn token_is_not_valid_after_expiration_date() {
-        let token = Token::new("", 60);
+        let token = Token::new("".to_string(), 60);
         let now = UTC::now() + Duration::minutes(2);
         assert!(!token.is_valid_with_margin(now, Duration::seconds(0)));
     }
 
     #[test]
     fn token_is_not_valid_in_margin() {
-        let token = Token::new("", 60);
+        let token = Token::new("".to_string(), 60);
         let now = UTC::now() + Duration::seconds(50);
         assert!(!token.is_valid_with_margin(now, Duration::seconds(20)));
     }
