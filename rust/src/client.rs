@@ -2,6 +2,8 @@ use std::io::Read;
 use std::cell::RefCell;
 
 use hyper::Client;
+use hyper::client::RequestBuilder;
+use hyper::method::Method;
 use hyper::header::Connection;
 use hyper::header::{Headers, Authorization, Bearer};
 use super::region::Region;
@@ -49,8 +51,6 @@ impl CtpClient {
     }
 
     // TODO (YaSi): avoid cloning the String on each call
-    // return &str?
-    // or use [borrow.Cow](https://doc.rust-lang.org/std/borrow/enum.Cow.html)?
     pub fn get_token(&self) -> String {
         let mut cache = self.token.borrow_mut();
         if cache.is_some() {
@@ -71,7 +71,15 @@ impl CtpClient {
         new_token.access_token
     }
 
-    pub fn request(&self, uri: &str) -> String {
+    pub fn get(&self, uri: &str) -> String {
+        send(self.request(Method::Get, uri))
+    }
+
+    pub fn post(&self, uri: &str, body: &str) -> String {
+        send(self.request(Method::Post, uri).body(body))
+    }
+
+    pub fn request(&self, method: Method, uri: &str) -> RequestBuilder {
         let client = &self.client;
 
         let access_token = self.get_token();
@@ -80,14 +88,16 @@ impl CtpClient {
         headers.set(Authorization(Bearer { token: access_token }));
 
         let uri = format!("{}/{}{}", self.api_url, self.project_key, uri);
-        let mut projets_res = client.get(&uri)
-            .header(Connection::close())
+        client.request(method, &uri)
             .headers(headers)
-            .send()
-            .unwrap();
-
-        let mut body = String::new();
-        projets_res.read_to_string(&mut body).unwrap();
-        body
     }
+}
+
+fn send(r: RequestBuilder) -> String {
+    let mut projets_res = r.send()
+        .unwrap();
+
+    let mut body = String::new();
+    projets_res.read_to_string(&mut body).unwrap();
+    body
 }

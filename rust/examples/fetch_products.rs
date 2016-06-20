@@ -27,10 +27,20 @@ fn main() {
     let region = matches.value_of("region").map(|s| Region::from_str(s).unwrap()).unwrap_or(Region::Europe);
 
     let ctp_client = commercetools::client::CtpClient::new(&region, project_key, client_id, client_secret);
-    let products = ctp_client.request("/products?limit=1");
+    let products = ctp_client.get("/products?limit=1");
     println!("\nProducts: {}", products);
 
-    let categories = ctp_client.request("/categories?limit=1");
-    println!("\nCategories: {}", categories);
+    let reviews = ctp_client.get("/reviews?limit=1");
+    println!("\nReviews: {}", reviews);
 
+    let create = false;
+    if create {
+        let create_review = r#"
+        {
+          "text": "my review"
+        }
+        "#;
+        let review = ctp_client.post("/reviews", create_review);
+        println!("\nNew Review: {}", review);
+    }
 }

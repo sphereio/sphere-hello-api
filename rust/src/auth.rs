@@ -25,7 +25,8 @@ impl fmt::Display for Token {
 
 impl Token {
     pub fn new<S>(access_token: S, expires_in_s: i64) -> Token
-            where S: Into<String> {
+        where S: Into<String>
+    {
         let duration = Duration::seconds(expires_in_s);
         Token {
             access_token: access_token.into(),
