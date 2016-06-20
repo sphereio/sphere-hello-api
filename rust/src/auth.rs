@@ -24,10 +24,11 @@ impl fmt::Display for Token {
 }
 
 impl Token {
-    pub fn new(access_token: String, expires_in_s: i64) -> Token {
+    pub fn new<S>(access_token: S, expires_in_s: i64) -> Token
+            where S: Into<String> {
         let duration = Duration::seconds(expires_in_s);
         Token {
-            access_token: access_token.to_string(),
+            access_token: access_token.into(),
             expires_at: UTC::now() + duration,
         }
     }
@@ -110,26 +111,31 @@ mod tests {
     use chrono::*;
 
     #[test]
+    fn make_auth_token_with_str_slice() {
+        Token::new("token", 60);
+    }
+
+    #[test]
     fn make_auth_token_with_owned_string() {
         Token::new(String::from("token"), 60);
     }
 
     #[test]
     fn token_is_valid_before_expiration_date() {
-        let token = Token::new("".to_string(), 60);
+        let token = Token::new("", 60);
         assert!(token.is_valid());
     }
 
     #[test]
     fn token_is_not_valid_after_expiration_date() {
-        let token = Token::new("".to_string(), 60);
+        let token = Token::new("", 60);
         let now = UTC::now() + Duration::minutes(2);
         assert!(!token.is_valid_with_margin(now, Duration::seconds(0)));
     }
 
     #[test]
     fn token_is_not_valid_in_margin() {
-        let token = Token::new("".to_string(), 60);
+        let token = Token::new("", 60);
         let now = UTC::now() + Duration::seconds(50);
         assert!(!token.is_valid_with_margin(now, Duration::seconds(20)));
     }
