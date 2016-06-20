@@ -9,17 +9,17 @@ use super::region::Region;
 use super::auth::Token;
 
 /// a commercetools client
-pub struct CtpClient {
-    api_url: String,
-    auth_url: String,
-    project_key: String,
-    client_id: String,
-    client_secret: String,
+pub struct CtpClient<'a> {
+    api_url: &'a str,
+    auth_url: &'a str,
+    project_key: &'a str,
+    client_id: &'a str,
+    client_secret: &'a str,
     client: Client,
     token: RefCell<Option<Token>>,
 }
 
-impl CtpClient {
+impl<'a> CtpClient<'a> {
     /// Returns a commercetools client for the given arguments
     ///
     /// # Arguments
@@ -35,15 +35,16 @@ impl CtpClient {
     /// use commercetools::region::Region;
     /// use commercetools::client::CtpClient;
     ///
-    /// let client = CtpClient::new(&Region::Europe, "my project key", "my client id", "my client secret");
+    /// let region = Region::Europe;
+    /// let client = CtpClient::new(&region, "my project key", "my client id", "my client secret");
     /// ```
-    pub fn new(region: &Region, project_key: &str, client_id: &str, client_secret: &str) -> CtpClient {
+    pub fn new(region: &'a Region, project_key: &'a str, client_id: &'a str, client_secret: &'a str) -> CtpClient<'a> {
         CtpClient {
-            api_url: region.api_url().to_string(),
-            auth_url: region.auth_url().to_string(),
-            project_key: project_key.to_string(),
-            client_id: client_id.to_string(),
-            client_secret: client_secret.to_string(),
+            api_url: region.api_url(),
+            auth_url: region.auth_url(),
+            project_key: project_key,
+            client_id: client_id,
+            client_secret: client_secret,
             client: Client::new(),
             token: RefCell::new(None),
         }
@@ -60,10 +61,10 @@ impl CtpClient {
         }
 
         let new_token = super::auth::retrieve_token(&self.client,
-                                                    &self.auth_url,
-                                                    &self.project_key,
-                                                    &self.client_id,
-                                                    &self.client_secret)
+                                                    self.auth_url,
+                                                    self.project_key,
+                                                    self.client_id,
+                                                    self.client_secret)
             .unwrap();
 
         *cache = Some(new_token.clone());
