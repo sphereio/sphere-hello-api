@@ -4,7 +4,6 @@ use std::cell::RefCell;
 use hyper::Client;
 use hyper::client::RequestBuilder;
 use hyper::method::Method;
-use hyper::header::Connection;
 use hyper::header::{Headers, Authorization, Bearer};
 use super::region::Region;
 use super::auth::Token;
@@ -79,6 +78,7 @@ impl CtpClient {
         send(self.request(Method::Post, uri).body(body))
     }
 
+    // TODO: this method "leaks" hyper RequestBuilder
     pub fn request(&self, method: Method, uri: &str) -> RequestBuilder {
         let client = &self.client;
 
