@@ -50,6 +50,16 @@ impl<'a> CtpClient<'a> {
         }
     }
 
+    pub fn with_auth_url(mut self, auth_url: &'a str) -> CtpClient<'a> {
+        self.auth_url = auth_url;
+        self
+    }
+
+    pub fn with_api_url(mut self, api_url: &'a str) -> CtpClient<'a> {
+        self.api_url = api_url;
+        self
+    }
+
     // TODO (YaSi): avoid cloning the String on each call
     pub fn get_token(&self) -> String {
         let mut cache = self.token.borrow_mut();
@@ -101,4 +111,30 @@ fn send(r: RequestBuilder) -> String {
     let mut body = String::new();
     projets_res.read_to_string(&mut body).unwrap();
     body
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use super::super::region::Region;
+
+    #[test]
+    fn new_client() {
+        CtpClient::new(&Region::Europe, "project_key", "client_id", "client_secret");
+        CtpClient::new(&Region::NorthAmerica,
+                       "project_key",
+                       "client_id",
+                       "client_secret");
+    }
+
+    #[test]
+    fn new_client_with_customized_url() {
+        CtpClient::new(&Region::Europe, "project_key", "client_id", "client_secret").with_api_url("my_api_url");
+
+        CtpClient::new(&Region::Europe, "project_key", "client_id", "client_secret").with_auth_url("my_auth_url");
+
+        CtpClient::new(&Region::Europe, "project_key", "client_id", "client_secret")
+            .with_api_url("my_api_url")
+            .with_auth_url("my_auth_url");
+    }
 }
