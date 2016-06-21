@@ -8,6 +8,7 @@ extern crate commercetools;
 use std::str::FromStr;
 use clap::App;
 use commercetools::region::Region;
+use commercetools::client::CtpClient;
 
 fn main() {
     env_logger::init().unwrap();
@@ -26,7 +27,7 @@ fn main() {
     let client_secret = matches.value_of("CLIENT_SECRET").unwrap();
     let region = matches.value_of("region").map(|s| Region::from_str(s).unwrap()).unwrap_or(Region::Europe);
 
-    let ctp_client = commercetools::client::CtpClient::new(&region, project_key, client_id, client_secret);
+    let ctp_client = CtpClient::new(&region, project_key, client_id, client_secret);
 
     let products = ctp_client.get("/products?limit=1");
     println!("\nProducts: {}", products);
