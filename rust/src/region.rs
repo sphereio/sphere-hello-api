@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 /// World region for which the commercetools platform has data-centers
 pub enum Region {
     Europe,
@@ -24,17 +24,17 @@ impl FromStr for Region {
 impl Region {
     /// Returns the [api url](http://dev.commercetools.com/http-api.html#hosts) for this region
     pub fn api_url(&self) -> &str {
-        match self {
-            &Region::Europe => "https://api.sphere.io",
-            &Region::NorthAmerica => "https://api.commercetools.co",
+        match *self {
+            Region::Europe => "https://api.sphere.io",
+            Region::NorthAmerica => "https://api.commercetools.co",
         }
     }
 
     /// Returns the [auth url](http://dev.commercetools.com/http-api-authorization.html#hosts) for this region
     pub fn auth_url(&self) -> &str {
-        match self {
-            &Region::Europe => "https://auth.sphere.io",
-            &Region::NorthAmerica => "https://auth.commercetools.co",
+        match *self {
+            Region::Europe => "https://auth.sphere.io",
+            Region::NorthAmerica => "https://auth.commercetools.co",
         }
     }
 }
