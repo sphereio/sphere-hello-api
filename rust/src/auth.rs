@@ -75,34 +75,22 @@ pub fn retrieve_token(client: &Client,
     let url = format!("{}/oauth/token?grant_type=client_credentials&scope=manage_project:{}",
                       auth_url,
                       project_key);
-    match client.post(&url)
-        .headers(auth_headers)
-        .send() {
 
-        Ok(ref mut res) if res.status != StatusCode::Ok => {
-            let mut body = String::new();
-            let read_body = match res.read_to_string(&mut body) {
-                Ok(_) => format!("Body: {}", body),
-                Err(_) => "".to_string(),
-            };
-            Err(format!("request to '{}' delivers status {}. {}",
-                        url,
-                        res.status,
-                        read_body)
-                .to_owned())
-        }
-        Ok(mut res) => {
-            let mut body = String::new();
-            res.read_to_string(&mut body)
-                .map_err(|err| err.to_string())
-                .and_then(|_| {
-                    debug!("Response from '{}': {}", url, body);
-                    json::decode::<TokenFromApi>(&body)
-                        .map_err(|err| err.to_string())
-                        .map(|token_from_api| Token::new(token_from_api.access_token, token_from_api.expires_in))
-                })
-        }
-        Err(err) => Err(err.to_string()),
+    let mut res = try!(client.post(&url).headers(auth_headers).send().map_err(|err| err.to_string()));
+
+    let mut body = String::new();
+    try!(res.read_to_string(&mut body).map_err(|err| err.to_string()));
+
+    if res.status != StatusCode::Ok {
+        Err(format!("request to '{}' delivers status {}. Body: {}",
+                    url,
+                    res.status,
+                    body)
+            .to_owned())
+    } else {
+        debug!("Response from '{}': {}", url, body);
+        let token_from_api = try!(json::decode::<TokenFromApi>(&body).map_err(|err| err.to_string()));
+        Ok(Token::new(token_from_api.access_token, token_from_api.expires_in))
     }
 }
 

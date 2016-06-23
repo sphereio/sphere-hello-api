@@ -70,15 +70,13 @@ impl<'a> CtpClient<'a> {
             }
         }
 
-        super::auth::retrieve_token(&self.client,
-                                    self.auth_url,
-                                    self.project_key,
-                                    self.client_id,
-                                    self.client_secret)
-            .map(|new_token| {
-                *cache = Some(new_token.clone());
-                new_token.access_token
-            })
+        let new_token = try!(super::auth::retrieve_token(&self.client,
+                                                         self.auth_url,
+                                                         self.project_key,
+                                                         self.client_id,
+                                                         self.client_secret));
+        *cache = Some(new_token.clone());
+        Ok(new_token.access_token)
     }
 
     pub fn get(&self, uri: &str) -> Result<String, String> {
@@ -96,27 +94,21 @@ impl<'a> CtpClient<'a> {
     pub fn request(&self, method: Method, uri: &str) -> Result<RequestBuilder, String> {
         let client = &self.client;
 
-        self.get_token()
-            .map(|access_token| {
-                let mut headers = Headers::new();
-                headers.set(Authorization(Bearer { token: access_token }));
+        let access_token = try!(self.get_token());
+        let mut headers = Headers::new();
+        headers.set(Authorization(Bearer { token: access_token }));
 
-                let uri = format!("{}/{}{}", self.api_url, self.project_key, uri);
-                client.request(method, &uri)
-                    .headers(headers)
-            })
+        let uri = format!("{}/{}{}", self.api_url, self.project_key, uri);
+        Ok(client.request(method, &uri).headers(headers))
     }
 }
 
 fn send(r: RequestBuilder) -> Result<String, String> {
-    r.send()
+    let mut projets_res = try!(r.send().map_err(|err| err.to_string()));
+    let mut body = String::new();
+    projets_res.read_to_string(&mut body)
         .map_err(|err| err.to_string())
-        .and_then(|mut projets_res| {
-            let mut body = String::new();
-            projets_res.read_to_string(&mut body)
-                .map_err(|err| err.to_string())
-                .map(|_| body)
-        })
+        .map(|_| body)
 }
 
 #[cfg(test)]
