@@ -61,56 +61,62 @@ impl<'a> CtpClient<'a> {
     }
 
     // TODO (YaSi): avoid cloning the String on each call
-    pub fn get_token(&self) -> String {
+    pub fn get_token(&self) -> Result<String, String> {
         let mut cache = self.token.borrow_mut();
         if cache.is_some() {
             let token = cache.as_ref().unwrap();
             if token.is_valid() {
-                return token.access_token.clone();
+                return Ok(token.access_token.clone());
             }
         }
 
-        let new_token = super::auth::retrieve_token(&self.client,
-                                                    self.auth_url,
-                                                    self.project_key,
-                                                    self.client_id,
-                                                    self.client_secret)
-            .unwrap();
-
-        *cache = Some(new_token.clone());
-        new_token.access_token
+        super::auth::retrieve_token(&self.client,
+                                    self.auth_url,
+                                    self.project_key,
+                                    self.client_id,
+                                    self.client_secret)
+            .map(|new_token| {
+                *cache = Some(new_token.clone());
+                new_token.access_token
+            })
     }
 
-    pub fn get(&self, uri: &str) -> String {
-        send(self.request(Method::Get, uri))
+    pub fn get(&self, uri: &str) -> Result<String, String> {
+        self.request(Method::Get, uri)
+            .and_then(send)
     }
 
-    pub fn post(&self, uri: &str, body: &str) -> String {
-        send(self.request(Method::Post, uri).body(body))
+    pub fn post(&self, uri: &str, body: &str) -> Result<String, String> {
+        self.request(Method::Post, uri)
+            .map(|r| r.body(body))
+            .and_then(send)
     }
 
     // TODO: this method "leaks" hyper RequestBuilder
-    pub fn request(&self, method: Method, uri: &str) -> RequestBuilder {
+    pub fn request(&self, method: Method, uri: &str) -> Result<RequestBuilder, String> {
         let client = &self.client;
 
-        let access_token = self.get_token();
+        self.get_token()
+            .map(|access_token| {
+                let mut headers = Headers::new();
+                headers.set(Authorization(Bearer { token: access_token }));
 
-        let mut headers = Headers::new();
-        headers.set(Authorization(Bearer { token: access_token }));
-
-        let uri = format!("{}/{}{}", self.api_url, self.project_key, uri);
-        client.request(method, &uri)
-            .headers(headers)
+                let uri = format!("{}/{}{}", self.api_url, self.project_key, uri);
+                client.request(method, &uri)
+                    .headers(headers)
+            })
     }
 }
 
-fn send(r: RequestBuilder) -> String {
-    let mut projets_res = r.send()
-        .unwrap();
-
-    let mut body = String::new();
-    projets_res.read_to_string(&mut body).unwrap();
-    body
+fn send(r: RequestBuilder) -> Result<String, String> {
+    r.send()
+        .map_err(|err| err.to_string())
+        .and_then(|mut projets_res| {
+            let mut body = String::new();
+            projets_res.read_to_string(&mut body)
+                .map_err(|err| err.to_string())
+                .map(|_| body)
+        })
 }
 
 #[cfg(test)]

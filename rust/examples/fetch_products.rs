@@ -29,10 +29,10 @@ fn main() {
 
     let ctp_client = CtpClient::new(&region, project_key, client_id, client_secret);
 
-    let products = ctp_client.get("/products?limit=1");
+    let products = ctp_client.get("/products?limit=1").unwrap();
     println!("\nProducts: {}", products);
 
-    let reviews = ctp_client.get("/reviews?limit=1");
+    let reviews = ctp_client.get("/reviews?limit=1").unwrap();
     println!("\nReviews: {}", reviews);
 
     let create = false;
@@ -42,7 +42,7 @@ fn main() {
           "text": "my review"
         }
         "#;
-        let review = ctp_client.post("/reviews", create_review);
+        let review = ctp_client.post("/reviews", create_review).unwrap();
         println!("\nNew Review: {}", review);
     }
 }
