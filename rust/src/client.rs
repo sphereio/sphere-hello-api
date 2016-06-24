@@ -61,7 +61,7 @@ impl<'a> CtpClient<'a> {
     }
 
     // TODO (YaSi): avoid cloning the String on each call
-    pub fn get_token(&self) -> Result<String, String> {
+    pub fn get_token(&self) -> ::Result<String> {
         let mut cache = self.token.borrow_mut();
         if cache.is_some() {
             let token = cache.as_ref().unwrap();
@@ -79,19 +79,18 @@ impl<'a> CtpClient<'a> {
         Ok(new_token.access_token)
     }
 
-    pub fn get(&self, uri: &str) -> Result<String, String> {
+    pub fn get(&self, uri: &str) -> ::Result<String> {
         self.request(Method::Get, uri)
             .and_then(send)
     }
 
-    pub fn post(&self, uri: &str, body: &str) -> Result<String, String> {
+    pub fn post(&self, uri: &str, body: &str) -> ::Result<String> {
         self.request(Method::Post, uri)
             .map(|r| r.body(body))
             .and_then(send)
     }
 
-    // TODO: this method "leaks" hyper RequestBuilder
-    pub fn request(&self, method: Method, uri: &str) -> Result<RequestBuilder, String> {
+    pub fn request(&self, method: Method, uri: &str) -> ::Result<RequestBuilder> {
         let client = &self.client;
 
         let access_token = try!(self.get_token());
@@ -103,12 +102,11 @@ impl<'a> CtpClient<'a> {
     }
 }
 
-fn send(r: RequestBuilder) -> Result<String, String> {
-    let mut projets_res = try!(r.send().map_err(|err| err.to_string()));
+fn send(r: RequestBuilder) -> ::Result<String> {
+    let mut projets_res = try!(r.send());
     let mut body = String::new();
-    projets_res.read_to_string(&mut body)
-        .map_err(|err| err.to_string())
-        .map(|_| body)
+    try!(projets_res.read_to_string(&mut body));
+    Ok(body)
 }
 
 #[cfg(test)]

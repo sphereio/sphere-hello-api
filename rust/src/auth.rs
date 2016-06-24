@@ -60,7 +60,7 @@ pub fn retrieve_token(client: &Client,
                       project_key: &str,
                       client_id: &str,
                       client_secret: &str)
-                      -> Result<Token, String> {
+                      -> ::Result<Token> {
 
     info!("retrieving a new OAuth token from '{}' for project '{}' with client '{}'",
           auth_url,
@@ -76,20 +76,16 @@ pub fn retrieve_token(client: &Client,
                       auth_url,
                       project_key);
 
-    let mut res = try!(client.post(&url).headers(auth_headers).send().map_err(|err| err.to_string()));
+    let mut res = try!(client.post(&url).headers(auth_headers).send());
 
     let mut body = String::new();
-    try!(res.read_to_string(&mut body).map_err(|err| err.to_string()));
+    try!(res.read_to_string(&mut body));
 
     if res.status != StatusCode::Ok {
-        Err(format!("request to '{}' delivers status {}. Body: {}",
-                    url,
-                    res.status,
-                    body)
-            .to_owned())
+        Err(::error::Error::UnexpectedStatus(res))
     } else {
         debug!("Response from '{}': {}", url, body);
-        let token_from_api = try!(json::decode::<TokenFromApi>(&body).map_err(|err| err.to_string()));
+        let token_from_api = try!(json::decode::<TokenFromApi>(&body));
         Ok(Token::new(token_from_api.access_token, token_from_api.expires_in))
     }
 }
