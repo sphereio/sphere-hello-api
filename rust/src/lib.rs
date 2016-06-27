@@ -8,6 +8,8 @@ extern crate log;
 extern crate error_chain;
 
 pub use errors::*;
+pub use region::Region;
+pub use auth::Token;
 
 mod errors;
 pub mod auth;

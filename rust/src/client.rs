@@ -5,8 +5,6 @@ use hyper::Client;
 use hyper::client::RequestBuilder;
 use hyper::method::Method;
 use hyper::header::{Headers, Authorization, Bearer};
-use super::region::Region;
-use super::auth::Token;
 
 /// a commercetools client
 pub struct CtpClient<'a> {
@@ -16,7 +14,7 @@ pub struct CtpClient<'a> {
     client_id: &'a str,
     client_secret: &'a str,
     client: Client,
-    token: RefCell<Option<Token>>,
+    token: RefCell<Option<::Token>>,
 }
 
 impl<'a> CtpClient<'a> {
@@ -38,7 +36,11 @@ impl<'a> CtpClient<'a> {
     /// let region = Region::Europe;
     /// let client = CtpClient::new(&region, "my project key", "my client id", "my client secret");
     /// ```
-    pub fn new(region: &'a Region, project_key: &'a str, client_id: &'a str, client_secret: &'a str) -> CtpClient<'a> {
+    pub fn new(region: &'a ::Region,
+               project_key: &'a str,
+               client_id: &'a str,
+               client_secret: &'a str)
+               -> CtpClient<'a> {
         CtpClient {
             api_url: region.api_url(),
             auth_url: region.auth_url(),
