@@ -32,7 +32,7 @@ error_chain! {
     errors {
         UnexpectedStatus(msg: String, response: Response) {
             description("unexpected http status")
-            display("unexpected http status: {}. Reponse: '{:?}'", msg, response)
+            display("unexpected http status: {}. Response: '{:?}'", msg, response)
         }
     }
 }

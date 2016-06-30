@@ -47,10 +47,10 @@ mod tests {
 
     #[test]
     fn region_from_string() {
-        assert!(Region::from_str("Europe").unwrap() == Region::Europe);
-        assert!(Region::from_str("europe").unwrap() == Region::Europe);
-        assert!(Region::from_str("NorthAmerica").unwrap() == Region::NorthAmerica);
-        assert!(Region::from_str("northAmeriCA").unwrap() == Region::NorthAmerica);
+        assert!(Region::from_str("Europe") == Ok(Region::Europe));
+        assert!(Region::from_str("europe") == Ok(Region::Europe));
+        assert!(Region::from_str("NorthAmerica") == Ok(Region::NorthAmerica));
+        assert!(Region::from_str("northAmeriCA") == Ok(Region::NorthAmerica));
     }
 
     #[test]
