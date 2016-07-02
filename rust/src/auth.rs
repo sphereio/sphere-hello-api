@@ -59,7 +59,8 @@ pub fn retrieve_token(client: &Client,
                       auth_url: &str,
                       project_key: &str,
                       client_id: &str,
-                      client_secret: &str)
+                      client_secret: &str,
+                      permissions: &Vec<&str>)
                       -> ::Result<Token> {
 
     info!("retrieving a new OAuth token from '{}' for project '{}' with client '{}'",
@@ -72,10 +73,16 @@ pub fn retrieve_token(client: &Client,
         password: Some(client_secret.to_owned()),
     }));
 
-    let url = format!("{}/oauth/token?grant_type=client_credentials&scope=manage_project:{}",
-                      auth_url,
-                      project_key);
+    let scope = permissions.iter()
+        .map(|&p| format!("{}:{}", p, project_key))
+        .collect::<Vec<String>>()
+        .join(" ");
 
+    let url = format!("{}/oauth/token?grant_type=client_credentials&scope={}",
+                      auth_url,
+                      scope);
+
+    debug!("Trying to retrieve token with url '{}'", url);
     let mut res = try!(client.post(&url).headers(auth_headers).send());
 
     let mut body = String::new();

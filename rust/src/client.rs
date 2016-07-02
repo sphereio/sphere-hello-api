@@ -13,6 +13,7 @@ pub struct CtpClient<'a> {
     project_key: &'a str,
     client_id: &'a str,
     client_secret: &'a str,
+    permissions: Vec<&'a str>,
     client: Client,
     token: RefCell<Option<::Token>>,
 }
@@ -47,6 +48,7 @@ impl<'a> CtpClient<'a> {
             project_key: project_key,
             client_id: client_id,
             client_secret: client_secret,
+            permissions: vec!["manage_project"],
             client: Client::new(),
             token: RefCell::new(None),
         }
@@ -59,6 +61,11 @@ impl<'a> CtpClient<'a> {
 
     pub fn with_api_url(mut self, api_url: &'a str) -> CtpClient<'a> {
         self.api_url = api_url;
+        self
+    }
+
+    pub fn with_permissions(mut self, permissions: Vec<&'a str>) -> CtpClient<'a> {
+        self.permissions = permissions;
         self
     }
 
@@ -76,7 +83,8 @@ impl<'a> CtpClient<'a> {
                                                          self.auth_url,
                                                          self.project_key,
                                                          self.client_id,
-                                                         self.client_secret));
+                                                         self.client_secret,
+                                                         &self.permissions));
         *cache = Some(new_token.clone());
         Ok(new_token.access_token)
     }

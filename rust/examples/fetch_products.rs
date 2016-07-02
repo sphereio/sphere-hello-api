@@ -6,7 +6,7 @@ extern crate env_logger;
 extern crate commercetools;
 
 use std::str::FromStr;
-use clap::App;
+use clap::{App, Arg};
 use commercetools::region::Region;
 use commercetools::client::CtpClient;
 
@@ -20,14 +20,27 @@ fn main() {
              <CLIENT_ID> 'client ID'
              <CLIENT_SECRET> 'client secret'
              --region=[Europe|NorthAmerica] 'region to use (default to Europe)'")
+        .arg(Arg::with_name("permissions")
+            .short("p")
+            .long("permission")
+            .help("permissions (default to manage_project)")
+            .multiple(true)
+            .takes_value(true)
+        )
         .get_matches();
 
     let project_key = matches.value_of("PROJECT_KEY").unwrap();
     let client_id = matches.value_of("CLIENT_ID").unwrap();
     let client_secret = matches.value_of("CLIENT_SECRET").unwrap();
     let region = matches.value_of("region").map(|s| Region::from_str(s).unwrap()).unwrap_or(Region::Europe);
+    let permissions: Vec<&str> = if matches.is_present("permissions") {
+        matches.values_of("permissions").unwrap().collect()
+    } else {
+        vec!("manage_project")
+    };
 
-    let ctp_client = CtpClient::new(&region, project_key, client_id, client_secret);
+    let ctp_client = CtpClient::new(&region, project_key, client_id, client_secret)
+        .with_permissions(permissions);
 
     let products = ctp_client.get("/products?limit=1").unwrap();
     println!("\nProducts: {}", products);

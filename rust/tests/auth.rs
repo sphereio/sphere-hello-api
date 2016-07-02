@@ -21,7 +21,7 @@ fn auth_can_extract_oauth_token() {
     with_server(handle,
                 &|url| {
         let client = Client::new();
-        let token = commercetools::auth::retrieve_token(&client, &url, "project_key", "client_id", "client_secret");
+        let token = commercetools::auth::retrieve_token(&client, &url, "project_key", "client_id", "client_secret", &vec!("permission"));
         assert!(token.is_ok(), "token = {:?}", token);
     });
 }
