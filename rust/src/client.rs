@@ -6,6 +6,9 @@ use hyper::client::RequestBuilder;
 use hyper::method::Method;
 use hyper::header::{Headers, Authorization, Bearer};
 
+use rustc_serialize::json;
+use rustc_serialize::Decodable;
+
 /// a commercetools client
 pub struct CtpClient<'a> {
     api_url: &'a str,
@@ -16,6 +19,14 @@ pub struct CtpClient<'a> {
     permissions: Vec<&'a str>,
     client: Client,
     token: RefCell<Option<::Token>>,
+}
+
+#[derive(Debug, RustcDecodable)]
+pub struct PagedQueryResult<R: Decodable> {
+    pub offset: u64,
+    pub count: u64,
+    pub total: Option<u64>,
+    pub results: Vec<R>,
 }
 
 impl<'a> CtpClient<'a> {
@@ -87,6 +98,12 @@ impl<'a> CtpClient<'a> {
                                                          &self.permissions));
         *cache = Some(new_token.clone());
         Ok(new_token.access_token)
+    }
+
+    pub fn list<R: Decodable>(&self, resource: &str) -> ::Result<PagedQueryResult<R>> {
+        let url = format!("/{}?withTotal=false", resource);
+        let body = try!(self.get(&url));
+        Ok(try!(json::decode::<PagedQueryResult<R>>(&body)))
     }
 
     pub fn get(&self, uri: &str) -> ::Result<String> {

@@ -4,11 +4,45 @@ extern crate clap;
 extern crate log;
 extern crate env_logger;
 extern crate commercetools;
+extern crate rustc_serialize;
 
 use std::str::FromStr;
 use clap::{App, Arg};
 use commercetools::region::Region;
 use commercetools::client::CtpClient;
+
+
+#[allow(non_snake_case)]
+#[derive(Debug, RustcDecodable)]
+pub struct LocalizedString {
+    pub en: String,
+}
+
+#[allow(non_snake_case)]
+#[derive(Debug, RustcDecodable)]
+pub struct ProductData {
+    pub name: LocalizedString,
+}
+
+#[allow(non_snake_case)]
+#[derive(Debug, RustcDecodable)]
+pub struct ProductCatalogData {
+    pub published: bool,
+    pub hasStagedChanges: bool,
+    pub current: ProductData,
+    pub staged: ProductData,
+}
+
+#[allow(non_snake_case)]
+#[derive(Debug, RustcDecodable)]
+pub struct Product {
+    pub id: String,
+    pub version: u64,
+    pub createdAt: String,
+    pub lastModifiedAt: String,
+    pub masterData: ProductCatalogData,
+}
+
 
 fn main() {
     env_logger::init().unwrap();
@@ -44,6 +78,9 @@ fn main() {
 
     let products = ctp_client.get("/products?limit=1").unwrap();
     println!("\nProducts: {}", products);
+
+    let products2 = ctp_client.list::<Product>("products").unwrap();
+    println!("\nList of products: {:?}", products2);
 
     let reviews = ctp_client.get("/reviews?limit=1").unwrap();
     println!("\nReviews: {}", reviews);
