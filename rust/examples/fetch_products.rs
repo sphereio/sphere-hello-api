@@ -77,13 +77,13 @@ fn main() {
         .with_permissions(permissions);
 
     let products = ctp_client.get("/products?limit=1").unwrap();
-    println!("\nProducts: {}", products);
+    println!("\nProducts: {}", products.body_as_string().unwrap());
 
     let products2 = ctp_client.list::<Product>("products").unwrap();
     println!("\nList of products: {:?}", products2);
 
     let reviews = ctp_client.get("/reviews?limit=1").unwrap();
-    println!("\nReviews: {}", reviews);
+    println!("\nReviews: {}", reviews.body_as_string().unwrap());
 
     let create = false;
     if create {
@@ -93,6 +93,6 @@ fn main() {
         }
         "#;
         let review = ctp_client.post("/reviews", create_review).unwrap();
-        println!("\nNew Review: {}", review);
+        println!("\n[{}] New Review: {}", review.status(), review.body_as_string().unwrap());
     }
 }

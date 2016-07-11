@@ -5,6 +5,8 @@ use hyper::Client;
 use hyper::client::RequestBuilder;
 use hyper::method::Method;
 use hyper::header::{Headers, Authorization, Bearer};
+use hyper::client::response::Response;
+use hyper::status::StatusCode;
 
 use rustc_serialize::json;
 use rustc_serialize::Decodable;
@@ -19,6 +21,27 @@ pub struct CtpClient<'a> {
     permissions: Vec<&'a str>,
     client: Client,
     token: RefCell<Option<::Token>>,
+}
+
+#[derive(Debug)]
+pub struct CtpResponse {
+    pub http_reponse: Response,
+}
+
+impl CtpResponse {
+    pub fn new(http_reponse: Response) -> CtpResponse {
+        CtpResponse { http_reponse: http_reponse }
+    }
+
+    pub fn status(&self) -> StatusCode {
+        self.http_reponse.status
+    }
+
+    pub fn body_as_string(mut self) -> ::Result<String> {
+        let mut body = String::new();
+        try!(self.http_reponse.read_to_string(&mut body));
+        Ok(body)
+    }
 }
 
 #[derive(Debug, RustcDecodable)]
@@ -102,16 +125,17 @@ impl<'a> CtpClient<'a> {
 
     pub fn list<R: Decodable>(&self, resource: &str) -> ::Result<PagedQueryResult<R>> {
         let url = format!("/{}?withTotal=false", resource);
-        let body = try!(self.get(&url));
+        let response = try!(self.get(&url));
+        let body = try!(response.body_as_string());
         Ok(try!(json::decode::<PagedQueryResult<R>>(&body)))
     }
 
-    pub fn get(&self, uri: &str) -> ::Result<String> {
+    pub fn get(&self, uri: &str) -> ::Result<CtpResponse> {
         self.request(Method::Get, uri)
             .and_then(send)
     }
 
-    pub fn post(&self, uri: &str, body: &str) -> ::Result<String> {
+    pub fn post(&self, uri: &str, body: &str) -> ::Result<CtpResponse> {
         self.request(Method::Post, uri)
             .map(|r| r.body(body))
             .and_then(send)
@@ -129,11 +153,8 @@ impl<'a> CtpClient<'a> {
     }
 }
 
-fn send(r: RequestBuilder) -> ::Result<String> {
-    let mut projets_res = try!(r.send());
-    let mut body = String::new();
-    try!(projets_res.read_to_string(&mut body));
-    Ok(body)
+fn send(r: RequestBuilder) -> ::Result<CtpResponse> {
+    Ok(try!(r.send().map(CtpResponse::new)))
 }
 
 #[cfg(test)]
