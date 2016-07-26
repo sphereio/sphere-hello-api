@@ -10,18 +10,34 @@ use std::str::FromStr;
 use clap::{App, Arg};
 use commercetools::region::Region;
 use commercetools::client::CtpClient;
+use std::collections::HashMap;
 
 
 #[allow(non_snake_case)]
 #[derive(Debug, RustcDecodable)]
-pub struct LocalizedString {
-    pub en: String,
+pub struct Reference {
+    pub typeId: String,
+    pub id: String,
+}
+
+#[allow(non_snake_case)]
+#[derive(Debug, RustcDecodable)]
+pub struct ProductVariant {
+    pub id: u64,
+    pub sku: Option<String>,
 }
 
 #[allow(non_snake_case)]
 #[derive(Debug, RustcDecodable)]
 pub struct ProductData {
-    pub name: LocalizedString,
+    pub name: HashMap<String, String>,
+    pub categories: Vec<Reference>,
+    pub description: Option<HashMap<String, String>>,
+    pub slug: HashMap<String, String>,
+    pub metaTitle: Option<HashMap<String, String>>,
+    pub metaDescription: Option<HashMap<String, String>>,
+    pub metaKeywords: Option<HashMap<String, String>>,
+    pub masterVariant: ProductVariant,
 }
 
 #[allow(non_snake_case)]
@@ -80,7 +96,9 @@ fn main() {
     println!("\nProducts: {}", products.body_as_string().unwrap());
 
     let products2 = ctp_client.list::<Product>("products").unwrap();
-    println!("\nList of products: {:?}", products2);
+    println!("\nList of product ids: {:?}", products2.results.iter().map(|p| &p.id).collect::<Vec<&String>>());
+
+    println!("\nFirst product: {:?}", &products2.results.first());
 
     let reviews = ctp_client.get("/reviews?limit=1").unwrap();
     println!("\nReviews: {}", reviews.body_as_string().unwrap());
