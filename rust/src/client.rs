@@ -52,6 +52,11 @@ pub struct PagedQueryResult<R: Decodable> {
     pub results: Vec<R>,
 }
 
+#[derive(Debug, RustcEncodable)]
+pub struct GraphQLQuery<'a> {
+    pub query: &'a str,
+}
+
 impl<'a> CtpClient<'a> {
     /// Returns a commercetools client for the given arguments
     ///
@@ -138,6 +143,19 @@ impl<'a> CtpClient<'a> {
     pub fn post(&self, uri: &str, body: &str) -> ::Result<CtpResponse> {
         self.request(Method::Post, uri)
             .map(|r| r.body(body))
+            .and_then(send)
+    }
+
+    /// sends a [GraphQL](http://graphql.org/) query
+    /// To test the query, use:
+    ///
+    /// - in Europe: https://impex.sphere.io/graphiql
+    /// - in US: https://impex.commercetools.co/graphiql
+    pub fn graphql(&self, query: &str) -> ::Result<CtpResponse> {
+        let body = try!(json::encode(&GraphQLQuery { query: query }));
+
+        self.request(Method::Post, "/graphql")
+            .map(|r| r.body(&body))
             .and_then(send)
     }
 

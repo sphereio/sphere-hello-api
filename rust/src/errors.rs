@@ -1,5 +1,6 @@
 use std::io::Error as IoError;
 use rustc_serialize::json::DecoderError;
+use rustc_serialize::json::EncoderError;
 use hyper::client::Response;
 use hyper::Error as HyperError;
 
@@ -24,7 +25,8 @@ error_chain! {
     // This section can be empty.
     foreign_links {
         IoError, Io, "IO error";
-        DecoderError, Json, "json";
+        DecoderError, JsonDecoding, "json decoding";
+        EncoderError, JsonEncoding, "json encoding";
         HyperError, Hyper, "http";
     }
 

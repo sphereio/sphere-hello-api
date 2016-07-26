@@ -92,14 +92,17 @@ fn main() {
     let ctp_client = CtpClient::new(&region, project_key, client_id, client_secret)
         .with_permissions(permissions);
 
+    // simple GET call
     let products = ctp_client.get("/products?limit=1").unwrap();
     println!("\nProducts: {}", products.body_as_string().unwrap());
 
+    // paged result of products
     let products2 = ctp_client.list::<Product>("products").unwrap();
     println!("\nList of product ids: {:?}", products2.results.iter().map(|p| &p.id).collect::<Vec<&String>>());
 
     println!("\nFirst product: {:?}", &products2.results.first());
 
+    // read and create a review
     let reviews = ctp_client.get("/reviews?limit=1").unwrap();
     println!("\nReviews: {}", reviews.body_as_string().unwrap());
 
@@ -113,4 +116,18 @@ fn main() {
         let review = ctp_client.post("/reviews", create_review).unwrap();
         println!("\n[{}] New Review: {}", review.status(), review.body_as_string().unwrap());
     }
+
+    // read products IDs with a Graph QL query
+    let query = r#"
+    {
+      products {
+        results {
+          id
+        }
+      }
+    }
+    "#;
+    let graphql = ctp_client.graphql(query).unwrap();
+    println!("\nGraphQL: {}", graphql.body_as_string().unwrap());
+
 }
