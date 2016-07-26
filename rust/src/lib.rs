@@ -1,3 +1,5 @@
+#![recursion_limit = "1024"]
+
 extern crate hyper;
 extern crate rustc_serialize;
 extern crate chrono;
