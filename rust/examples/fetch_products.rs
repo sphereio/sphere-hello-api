@@ -60,6 +60,17 @@ pub struct Product {
 }
 
 
+#[allow(non_snake_case)]
+#[derive(Debug, RustcDecodable)]
+pub struct Review {
+    pub id: String,
+    pub version: u64,
+    pub createdAt: String,
+    pub lastModifiedAt: String,
+    pub text: Option<String>,
+}
+
+
 fn main() {
     env_logger::init().unwrap();
     let matches = App::new("sphere")
@@ -90,10 +101,10 @@ fn main() {
     };
 
     let ctp_client = CtpClient::new(&region, project_key, client_id, client_secret)
-        .with_permissions(permissions);
+        .with_permissions(&permissions);
 
     // simple GET call
-    let products = ctp_client.get("/products?limit=1").unwrap();
+    let mut products = ctp_client.get("/products?limit=1").unwrap();
     println!("\nProducts: {}", products.body_as_string().unwrap());
 
     // paged result of products
@@ -102,19 +113,25 @@ fn main() {
 
     println!("\nFirst product: {:?}", &products2.results.first());
 
-    // read and create a review
-    let reviews = ctp_client.get("/reviews?limit=1").unwrap();
+    // read reviews
+    let mut reviews = ctp_client.get("/reviews?limit=1").unwrap();
     println!("\nReviews: {}", reviews.body_as_string().unwrap());
 
-    let create = false;
+    let create = permissions.iter().any(|&p| p == "manage_project" || p == "manage_products");
     if create {
+        // create and delete a review
         let create_review = r#"
         {
           "text": "my review"
         }
         "#;
-        let review = ctp_client.post("/reviews", create_review).unwrap();
-        println!("\n[{}] New Review: {}", review.status(), review.body_as_string().unwrap());
+        let mut review_call = ctp_client.post("/reviews", create_review).unwrap();
+        let review = review_call.body_as::<Review>().unwrap();
+        println!("\n[{}] New Review: {:?}", &review_call.status(), review);
+
+        let url = format!("/reviews/{}", review.id);
+        let mut deleted_review = ctp_client.delete(&url).unwrap();
+        println!("\n[{}] Deleted Review: {:?}", &deleted_review.status(), deleted_review.body_as_string().unwrap());
     }
 
     // read products IDs with a Graph QL query
@@ -127,7 +144,7 @@ fn main() {
       }
     }
     "#;
-    let graphql = ctp_client.graphql(query).unwrap();
+    let mut graphql = ctp_client.graphql(query).unwrap();
     println!("\nGraphQL: {}", graphql.body_as_string().unwrap());
 
 }

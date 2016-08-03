@@ -37,10 +37,15 @@ impl CtpResponse {
         self.http_reponse.status
     }
 
-    pub fn body_as_string(mut self) -> ::Result<String> {
+    pub fn body_as_string(&mut self) -> ::Result<String> {
         let mut body = String::new();
         try!(self.http_reponse.read_to_string(&mut body));
         Ok(body)
+    }
+
+    pub fn body_as<R: Decodable>(&mut self) -> ::Result<R> {
+        let body = try!(self.body_as_string());
+        Ok(try!(json::decode::<R>(&body)))
     }
 }
 
@@ -103,8 +108,8 @@ impl<'a> CtpClient<'a> {
         self
     }
 
-    pub fn with_permissions(mut self, permissions: Vec<&'a str>) -> CtpClient<'a> {
-        self.permissions = permissions;
+    pub fn with_permissions(mut self, permissions: &Vec<&'a str>) -> CtpClient<'a> {
+        self.permissions = permissions.clone();
         self
     }
 
@@ -130,7 +135,7 @@ impl<'a> CtpClient<'a> {
 
     pub fn list<R: Decodable>(&self, resource: &str) -> ::Result<PagedQueryResult<R>> {
         let url = format!("/{}?withTotal=false", resource);
-        let response = try!(self.get(&url));
+        let mut response = try!(self.get(&url));
         let body = try!(response.body_as_string());
         Ok(try!(json::decode::<PagedQueryResult<R>>(&body)))
     }
@@ -143,6 +148,11 @@ impl<'a> CtpClient<'a> {
     pub fn post(&self, uri: &str, body: &str) -> ::Result<CtpResponse> {
         self.request(Method::Post, uri)
             .map(|r| r.body(body))
+            .and_then(send)
+    }
+
+    pub fn delete(&self, uri: &str) -> ::Result<CtpResponse> {
+        self.request(Method::Delete, uri)
             .and_then(send)
     }
 
