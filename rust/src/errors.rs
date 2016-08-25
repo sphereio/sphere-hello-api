@@ -24,10 +24,10 @@ error_chain! {
     //
     // This section can be empty.
     foreign_links {
-        IoError, Io, "IO error";
-        DecoderError, JsonDecoding, "json decoding";
-        EncoderError, JsonEncoding, "json encoding";
-        HyperError, Hyper, "http";
+        IoError, Io;
+        DecoderError, JsonDecoding;
+        EncoderError, JsonEncoding;
+        HyperError, Hyper;
     }
 
     // Define additional `ErrorKind` variants.

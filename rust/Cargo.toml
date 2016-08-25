@@ -8,7 +8,7 @@ hyper = "0.9"
 rustc-serialize = "0.3"
 chrono = "0.2"
 log = "0.3"
-error-chain = "0.2"
+error-chain = "0.5"
 
 [dev-dependencies]
 env_logger = "0.3"
