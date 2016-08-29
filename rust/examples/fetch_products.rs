@@ -129,7 +129,7 @@ fn main() {
         let review = review_call.body_as::<Review>().unwrap();
         println!("\n[{}] New Review: {:?}", &review_call.status(), review);
 
-        let url = format!("/reviews/{}", review.id);
+        let url = format!("/reviews/{}?version={}", review.id, review.version);
         let mut deleted_review = ctp_client.delete(&url).unwrap();
         println!("\n[{}] Deleted Review: {:?}", &deleted_review.status(), deleted_review.body_as_string().unwrap());
     }
