@@ -20,7 +20,7 @@ request({
   } else {
     var data = 'var token = { project_key: \'' + argv.project_key + '\', access_token: \'' + b.access_token + '\' }'
     fs.writeFileSync(path.join(__dirname + '/../token.js'), data, {encoding: 'utf-8'})
-    console.log('Access token generated:')
+    console.log('Access token generated: ' + b.access_token);
     process.exit(0)
   }
 })
