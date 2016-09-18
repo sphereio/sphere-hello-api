@@ -81,11 +81,11 @@ impl<'a> CtpClient<'a> {
     /// let region = Region::Europe;
     /// let client = CtpClient::new(&region, "my project key", "my client id", "my client secret");
     /// ```
-    pub fn new(region: &'a ::Region,
-               project_key: &'a str,
-               client_id: &'a str,
-               client_secret: &'a str)
-               -> CtpClient<'a> {
+    pub fn new<R: ::HasApiUrl<'a> + ::HasAuthUrl<'a>>(region: &R,
+                                                      project_key: &'a str,
+                                                      client_id: &'a str,
+                                                      client_secret: &'a str)
+                                                      -> CtpClient<'a> {
         CtpClient {
             api_url: region.api_url(),
             auth_url: region.auth_url(),

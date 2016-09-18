@@ -1,5 +1,13 @@
 use std::str::FromStr;
 
+pub trait HasAuthUrl<'a> {
+    fn auth_url(&self) -> &'a str;
+}
+
+pub trait HasApiUrl<'a> {
+    fn api_url(&self) -> &'a str;
+}
+
 #[derive(PartialEq, Eq)]
 /// World region for which the commercetools platform has data-centers
 pub enum Region {
@@ -21,20 +29,22 @@ impl FromStr for Region {
     }
 }
 
-impl Region {
-    /// Returns the [api url](http://dev.commercetools.com/http-api.html#hosts) for this region
-    pub fn api_url(&self) -> &str {
-        match *self {
-            Region::Europe => "https://api.sphere.io",
-            Region::NorthAmerica => "https://api.commercetools.co",
-        }
-    }
-
+impl<'a> HasAuthUrl<'a> for Region {
     /// Returns the [auth url](http://dev.commercetools.com/http-api-authorization.html#hosts) for this region
-    pub fn auth_url(&self) -> &str {
+    fn auth_url(&self) -> &'a str {
         match *self {
             Region::Europe => "https://auth.sphere.io",
             Region::NorthAmerica => "https://auth.commercetools.co",
+        }
+    }
+}
+
+impl<'a> HasApiUrl<'a> for Region {
+    /// Returns the [api url](http://dev.commercetools.com/http-api.html#hosts) for this region
+    fn api_url(&self) -> &'a str {
+        match *self {
+            Region::Europe => "https://api.sphere.io",
+            Region::NorthAmerica => "https://api.commercetools.co",
         }
     }
 }
