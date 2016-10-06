@@ -3,5 +3,5 @@
 ```
 brew install fswatch
 
-fswatch -o src -o examples | xargs -n1 cargo test
+fswatch -o src -o examples | xargs -n1 -I{} cargo test
 ```
