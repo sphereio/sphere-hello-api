@@ -1,8 +1,8 @@
-use std::io::Error as IoError;
+use hyper::Error as HyperError;
+use hyper::client::Response;
 use rustc_serialize::json::DecoderError;
 use rustc_serialize::json::EncoderError;
-use hyper::client::Response;
-use hyper::Error as HyperError;
+use std::io::Error as IoError;
 
 error_chain! {
     // The type defined for this error. These are the conventional

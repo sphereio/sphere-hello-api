@@ -1,14 +1,13 @@
-use std::io::Read;
-
 use hyper::Client;
 use hyper::client::RequestBuilder;
-use hyper::method::Method;
-use hyper::header::{Headers, Authorization, Bearer};
 use hyper::client::response::Response;
+use hyper::header::{Headers, Authorization, Bearer};
+use hyper::method::Method;
 use hyper::status::StatusCode;
+use rustc_serialize::Decodable;
 
 use rustc_serialize::json;
-use rustc_serialize::Decodable;
+use std::io::Read;
 
 /// a commercetools client
 pub struct CtpClient<'a> {
@@ -80,7 +79,11 @@ impl<'a> CtpClient<'a> {
     /// let region = Region::Europe;
     /// let client = CtpClient::new(&region, "my project key", "my client id", "my client secret");
     /// ```
-    pub fn new<REG>(region: &REG, project_key: &'a str, client_id: &'a str, client_secret: &'a str) -> CtpClient<'a>
+    pub fn new<REG>(region: &REG,
+                    project_key: &'a str,
+                    client_id: &'a str,
+                    client_secret: &'a str)
+                    -> CtpClient<'a>
         where REG: ::HasApiUrl<'a> + ::HasAuthUrl<'a>
     {
         CtpClient {
@@ -196,9 +199,11 @@ mod tests {
 
     #[test]
     fn new_client_with_customized_url() {
-        CtpClient::new(&Region::Europe, "project_key", "client_id", "client_secret").with_api_url("my_api_url");
+        CtpClient::new(&Region::Europe, "project_key", "client_id", "client_secret")
+            .with_api_url("my_api_url");
 
-        CtpClient::new(&Region::Europe, "project_key", "client_id", "client_secret").with_auth_url("my_auth_url");
+        CtpClient::new(&Region::Europe, "project_key", "client_id", "client_secret")
+            .with_auth_url("my_auth_url");
 
         CtpClient::new(&Region::Europe, "project_key", "client_id", "client_secret")
             .with_api_url("my_api_url")

@@ -1,11 +1,11 @@
-use std::fmt;
-use std::io::Read;
+use chrono::*;
 
 use hyper::Client;
 use hyper::header::{Headers, Authorization, Basic};
 use hyper::status::StatusCode;
 use rustc_serialize::json;
-use chrono::*;
+use std::fmt;
+use std::io::Read;
 
 /// access token
 #[derive(Debug, Clone)]
@@ -54,7 +54,8 @@ struct TokenFromApi {
     expires_in: i64,
 }
 
-/// retrieve an [OAuth token](http://dev.commercetools.com/http-api-authorization.html) for the commercetools API
+/// retrieve an [OAuth token](http://dev.commercetools.com/http-api-authorization.html)
+/// for the commercetools API
 pub fn retrieve_token(client: &Client,
                       auth_url: &str,
                       project_key: &str,
@@ -99,8 +100,8 @@ pub fn retrieve_token(client: &Client,
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use chrono::*;
+    use super::*;
 
     #[test]
     fn make_auth_token_with_str_slice() {

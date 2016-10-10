@@ -9,9 +9,9 @@ extern crate log;
 #[macro_use]
 extern crate error_chain;
 
+pub use auth::Token;
 pub use errors::*;
 pub use region::*;
-pub use auth::Token;
 
 mod errors;
 pub mod auth;

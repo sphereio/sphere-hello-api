@@ -30,7 +30,8 @@ impl FromStr for Region {
 }
 
 impl<'a> HasAuthUrl<'a> for Region {
-    /// Returns the [auth url](http://dev.commercetools.com/http-api-authorization.html#hosts) for this region
+    /// Returns the [auth url](http://dev.commercetools.com/http-api-authorization.html#hosts)
+    /// for this region
     fn auth_url(&self) -> &'a str {
         match *self {
             Region::Europe => "https://auth.sphere.io",
@@ -52,8 +53,8 @@ impl<'a> HasApiUrl<'a> for Region {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::str::FromStr;
+    use super::*;
 
     #[test]
     fn region_from_string() {
@@ -66,6 +67,8 @@ mod tests {
     #[test]
     fn unparsable_region_err() {
         assert!(Region::from_str("India") ==
-                Result::Err("Region 'India' not recognized. Valid values: 'Europe', 'NorthAmerica'.".to_string()));
+                Result::Err("Region 'India' not recognized. Valid values: 'Europe', \
+                             'NorthAmerica'."
+            .to_string()));
     }
 }
