@@ -100,7 +100,7 @@ fn main() {
         vec!("manage_project")
     };
 
-    let ctp_client = CtpClient::new(&region, project_key, client_id, client_secret)
+    let mut ctp_client = CtpClient::new(&region, project_key, client_id, client_secret)
         .with_permissions(&permissions);
 
     // simple GET call

@@ -1,5 +1,4 @@
 use std::io::Read;
-use std::cell::RefCell;
 
 use hyper::Client;
 use hyper::client::RequestBuilder;
@@ -20,7 +19,7 @@ pub struct CtpClient<'a> {
     client_secret: &'a str,
     permissions: Vec<&'a str>,
     client: Client,
-    token: RefCell<Option<::Token>>,
+    token: Option<::Token>,
 }
 
 #[derive(Debug)]
@@ -92,7 +91,7 @@ impl<'a> CtpClient<'a> {
             client_secret: client_secret,
             permissions: vec!["manage_project"],
             client: Client::new(),
-            token: RefCell::new(None),
+            token: None,
         }
     }
 
@@ -112,10 +111,8 @@ impl<'a> CtpClient<'a> {
     }
 
     // TODO (YaSi): avoid cloning the String on each call
-    pub fn get_token(&self) -> ::Result<String> {
-        let mut cache = self.token.borrow_mut();
-        if cache.is_some() {
-            let token = cache.as_ref().unwrap();
+    pub fn get_token(&mut self) -> ::Result<String> {
+        if let Some(ref token) = self.token {
             if token.is_valid() {
                 return Ok(token.access_token.clone());
             }
@@ -127,29 +124,30 @@ impl<'a> CtpClient<'a> {
                                                          self.client_id,
                                                          self.client_secret,
                                                          &self.permissions));
+        let ref mut cache = self.token;
         *cache = Some(new_token.clone());
         Ok(new_token.access_token)
     }
 
-    pub fn list<R: Decodable>(&self, resource: &str) -> ::Result<PagedQueryResult<R>> {
+    pub fn list<R: Decodable>(&mut self, resource: &str) -> ::Result<PagedQueryResult<R>> {
         let url = format!("/{}?withTotal=false", resource);
         let mut response = try!(self.get(&url));
         let body = try!(response.body_as_string());
         Ok(try!(json::decode::<PagedQueryResult<R>>(&body)))
     }
 
-    pub fn get(&self, uri: &str) -> ::Result<CtpResponse> {
+    pub fn get(&mut self, uri: &str) -> ::Result<CtpResponse> {
         self.request(Method::Get, uri)
             .and_then(send)
     }
 
-    pub fn post(&self, uri: &str, body: &str) -> ::Result<CtpResponse> {
+    pub fn post(&mut self, uri: &str, body: &str) -> ::Result<CtpResponse> {
         self.request(Method::Post, uri)
             .map(|r| r.body(body))
             .and_then(send)
     }
 
-    pub fn delete(&self, uri: &str) -> ::Result<CtpResponse> {
+    pub fn delete(&mut self, uri: &str) -> ::Result<CtpResponse> {
         self.request(Method::Delete, uri)
             .and_then(send)
     }
@@ -159,7 +157,7 @@ impl<'a> CtpClient<'a> {
     ///
     /// - in Europe: https://impex.sphere.io/graphiql
     /// - in US: https://impex.commercetools.co/graphiql
-    pub fn graphql(&self, query: &str) -> ::Result<CtpResponse> {
+    pub fn graphql(&mut self, query: &str) -> ::Result<CtpResponse> {
         let body = try!(json::encode(&GraphQLQuery { query: query }));
 
         self.request(Method::Post, "/graphql")
@@ -167,14 +165,13 @@ impl<'a> CtpClient<'a> {
             .and_then(send)
     }
 
-    pub fn request(&self, method: Method, uri: &str) -> ::Result<RequestBuilder> {
-        let client = &self.client;
-
+    pub fn request(&mut self, method: Method, uri: &str) -> ::Result<RequestBuilder> {
         let access_token = try!(self.get_token());
         let mut headers = Headers::new();
         headers.set(Authorization(Bearer { token: access_token }));
 
         let uri = format!("{}/{}{}", self.api_url, self.project_key, uri);
+        let client = &self.client;
         Ok(client.request(method, &uri).headers(headers))
     }
 }
