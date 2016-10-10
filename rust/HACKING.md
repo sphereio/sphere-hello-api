@@ -1,7 +1,15 @@
-### on mac:
+
+
+### Continuous testing:
+
+Install [cargo watch](https://github.com/passcod/cargo-watch) 
 
 ```
-brew install fswatch
+cargo install cargo-watch
+```
 
-fswatch -o src -o examples | xargs -n1 -I{} cargo test
+and then:
+
+```
+cargo watch test
 ```
