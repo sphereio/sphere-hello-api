@@ -19,6 +19,18 @@ This library follows the Rust standard:
 
 [Rust](https://www.rust-lang.org/) and [Cargo](https://crates.io/install) must be installed. We advise you to use [rustup](https://github.com/rust-lang-nursery/rustup.rs) to install them.
 
+#### On mac:
+
+install openssl:
+```
+brew install openssl
+```
+
+and export the lib:
+```
+export OPENSSL_INCLUDE_DIR=/usr/local/opt/openssl/include
+```
+
 ## Hack
 ### Run the tests
 ```
