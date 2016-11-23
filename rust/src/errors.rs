@@ -5,19 +5,6 @@ use rustc_serialize::json::EncoderError;
 use std::io::Error as IoError;
 
 error_chain! {
-    // The type defined for this error. These are the conventional
-    // and recommended names, but they can be arbitrarily chosen.
-    types {
-        Error, ErrorKind, ChainErr, Result;
-    }
-
-    // Automatic conversions between this error chain and other
-    // error chains.
-    //
-    // This section can be empty.
-    links {
-    }
-
     // Automatic conversions between this error chain and other
     // error types not defined by the `error_chain!`. These will be
     // boxed as the error cause and wrapped in a new error.
