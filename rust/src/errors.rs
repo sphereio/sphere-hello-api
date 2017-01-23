@@ -1,8 +1,3 @@
-use hyper::Error as HyperError;
-use hyper::client::Response;
-use rustc_serialize::json::DecoderError;
-use rustc_serialize::json::EncoderError;
-use std::io::Error as IoError;
 
 error_chain! {
     // Automatic conversions between this error chain and other
@@ -11,15 +6,15 @@ error_chain! {
     //
     // This section can be empty.
     foreign_links {
-        IoError, Io;
-        DecoderError, JsonDecoding;
-        EncoderError, JsonEncoding;
-        HyperError, Hyper;
+        Io(::std::io::Error);
+        JsonDecoding(::rustc_serialize::json::DecoderError);
+        JsonEncoding(::rustc_serialize::json::EncoderError);
+        Hyper(::hyper::Error);
     }
 
     // Define additional `ErrorKind` variants.
     errors {
-        UnexpectedStatus(msg: String, response: Response) {
+        UnexpectedStatus(msg: String, response: String) {
             description("unexpected http status")
             display("unexpected http status: {}. Response: '{:?}'", msg, response)
         }

@@ -90,7 +90,7 @@ pub fn retrieve_token(client: &Client,
     try!(res.read_to_string(&mut body));
 
     if res.status != StatusCode::Ok {
-        Err(::ErrorKind::UnexpectedStatus("expected OK".to_string(), res).into())
+        Err(::ErrorKind::UnexpectedStatus("expected OK".to_string(), format!("{:?}", res)).into())
     } else {
         debug!("Response from '{}': {}", url, body);
         let token_from_api = try!(json::decode::<TokenFromApi>(&body));
