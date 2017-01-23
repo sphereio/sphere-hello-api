@@ -6,11 +6,11 @@ extern crate env_logger;
 extern crate commercetools;
 extern crate rustc_serialize;
 
-use std::str::FromStr;
 use clap::{App, Arg};
-use commercetools::region::Region;
 use commercetools::client::CtpClient;
+use commercetools::region::Region;
 use std::collections::HashMap;
+use std::str::FromStr;
 
 
 #[allow(non_snake_case)]
@@ -76,28 +76,27 @@ fn main() {
     let matches = App::new("sphere")
         .version("1.0")
         .author("Yann Simon <yann.simon@commercetools.com>")
-        .args_from_usage(
-            "<PROJECT_KEY> 'project key'
-             <CLIENT_ID> 'client ID'
-             <CLIENT_SECRET> 'client secret'
-             --region=[Europe|NorthAmerica] 'region to use (default to Europe)'")
+        .args_from_usage("<PROJECT_KEY> 'project key' \n\
+             <CLIENT_ID> 'client ID' \n\
+             <CLIENT_SECRET> 'client secret' \n\
+            --region=[Europe|NorthAmerica] 'region to use (default to Europe)'")
         .arg(Arg::with_name("permissions")
             .short("p")
             .long("permission")
             .help("permissions (default to manage_project)")
             .multiple(true)
-            .takes_value(true)
-        )
+            .takes_value(true))
         .get_matches();
 
     let project_key = matches.value_of("PROJECT_KEY").unwrap();
     let client_id = matches.value_of("CLIENT_ID").unwrap();
     let client_secret = matches.value_of("CLIENT_SECRET").unwrap();
-    let region = matches.value_of("region").map(|s| Region::from_str(s).unwrap()).unwrap_or(Region::Europe);
+    let region =
+        matches.value_of("region").map(|s| Region::from_str(s).unwrap()).unwrap_or(Region::Europe);
     let permissions: Vec<&str> = if matches.is_present("permissions") {
         matches.values_of("permissions").unwrap().collect()
     } else {
-        vec!("manage_project")
+        vec!["manage_project"]
     };
 
     let mut ctp_client = CtpClient::new(&region, project_key, client_id, client_secret)
@@ -109,7 +108,8 @@ fn main() {
 
     // paged result of products
     let products2 = ctp_client.list::<Product>("products").unwrap();
-    println!("\nList of product ids: {:?}", products2.results.iter().map(|p| &p.id).collect::<Vec<&String>>());
+    println!("\nList of product ids: {:?}",
+             products2.results.iter().map(|p| &p.id).collect::<Vec<&String>>());
 
     println!("\nFirst product: {:?}", &products2.results.first());
 
@@ -131,7 +131,9 @@ fn main() {
 
         let url = format!("/reviews/{}?version={}", review.id, review.version);
         let mut deleted_review = ctp_client.delete(&url).unwrap();
-        println!("\n[{}] Deleted Review: {:?}", &deleted_review.status(), deleted_review.body_as_string().unwrap());
+        println!("\n[{}] Deleted Review: {:?}",
+                 &deleted_review.status(),
+                 deleted_review.body_as_string().unwrap());
     }
 
     // read products IDs with a Graph QL query

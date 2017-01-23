@@ -1,8 +1,8 @@
 extern crate commercetools;
 extern crate hyper;
 
-use hyper::server::{Server, Request, Response, Handler};
 use hyper::Client;
+use hyper::server::{Server, Request, Response, Handler};
 
 fn with_server<H: Handler + 'static, R>(handle: H, test: &Fn(String) -> R) -> R {
     let mut server = Server::http("localhost:0").unwrap().handle(handle).unwrap();
@@ -21,7 +21,12 @@ fn auth_can_extract_oauth_token() {
     with_server(handle,
                 &|url| {
         let client = Client::new();
-        let token = commercetools::auth::retrieve_token(&client, &url, "project_key", "client_id", "client_secret", &vec!("permission"));
+        let token = commercetools::auth::retrieve_token(&client,
+                                                        &url,
+                                                        "project_key",
+                                                        "client_id",
+                                                        "client_secret",
+                                                        &vec!["permission"]);
         assert!(token.is_ok(), "token = {:?}", token);
     });
 }
