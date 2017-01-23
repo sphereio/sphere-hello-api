@@ -3,7 +3,9 @@ use hyper::client::RequestBuilder;
 use hyper::client::response::Response;
 use hyper::header::{Headers, Authorization, Bearer};
 use hyper::method::Method;
+use hyper::net::HttpsConnector;
 use hyper::status::StatusCode;
+use hyper_openssl::OpensslClient;
 use rustc_serialize::Decodable;
 
 use rustc_serialize::json;
@@ -86,6 +88,15 @@ impl<'a> CtpClient<'a> {
                     -> CtpClient<'a>
         where REG: ::HasApiUrl<'a> + ::HasAuthUrl<'a>
     {
+        let client = if region.api_url().starts_with("https") ||
+                        region.auth_url().starts_with("https") {
+            let ssl = OpensslClient::new().unwrap();
+            let connector = HttpsConnector::new(ssl);
+            Client::with_connector(connector)
+        } else {
+            Client::new()
+        };
+
         CtpClient {
             api_url: region.api_url(),
             auth_url: region.auth_url(),
@@ -93,7 +104,7 @@ impl<'a> CtpClient<'a> {
             client_id: client_id,
             client_secret: client_secret,
             permissions: vec!["manage_project"],
-            client: Client::new(),
+            client: client,
             token: None,
         }
     }
