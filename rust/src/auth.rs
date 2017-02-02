@@ -100,8 +100,8 @@ pub fn retrieve_token(client: &Client,
 
 #[cfg(test)]
 mod tests {
-    use chrono::*;
     use super::*;
+    use chrono::*;
 
     #[test]
     fn make_auth_token_with_str_slice() {

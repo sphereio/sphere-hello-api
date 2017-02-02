@@ -53,8 +53,8 @@ impl<'a> HasApiUrl<'a> for Region {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
     use super::*;
+    use std::str::FromStr;
 
     #[test]
     fn region_from_string() {
