@@ -84,7 +84,7 @@ pub fn retrieve_token(client: &Client,
                       scope);
 
     debug!("Trying to retrieve token with url '{}'", url);
-    let mut res = try!(client.post(&url).headers(auth_headers).send());
+    let mut res = client.post(&url).headers(auth_headers).send()?;
 
     let mut body = String::new();
     try!(res.read_to_string(&mut body));
@@ -93,7 +93,7 @@ pub fn retrieve_token(client: &Client,
         Err(::ErrorKind::UnexpectedStatus("expected OK".to_string(), format!("{:?}", res)).into())
     } else {
         debug!("Response from '{}': {}", url, body);
-        let token_from_api = try!(serde_json::from_str::<TokenFromApi>(&body));
+        let token_from_api = serde_json::from_str::<TokenFromApi>(&body)?;
         Ok(Token::new(token_from_api.access_token, token_from_api.expires_in))
     }
 }

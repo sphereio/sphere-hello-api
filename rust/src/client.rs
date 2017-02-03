@@ -44,8 +44,8 @@ impl CtpResponse {
     }
 
     pub fn body_as<R: Deserialize>(&mut self) -> ::Result<R> {
-        let body = try!(self.body_as_string());
-        Ok(try!(serde_json::from_str::<R>(&body)))
+        let body = self.body_as_string()?;
+        Ok(serde_json::from_str::<R>(&body)?)
     }
 }
 
@@ -145,9 +145,8 @@ impl<'a> CtpClient<'a> {
 
     pub fn list<R: Deserialize>(&mut self, resource: &str) -> ::Result<PagedQueryResult<R>> {
         let url = format!("/{}?withTotal=false", resource);
-        let mut response = try!(self.get(&url));
-        let body = try!(response.body_as_string());
-        Ok(try!(serde_json::from_str::<PagedQueryResult<R>>(&body)))
+        let body = self.get(&url)?.body_as_string()?;
+        Ok(serde_json::from_str::<PagedQueryResult<R>>(&body)?)
     }
 
     pub fn get(&mut self, uri: &str) -> ::Result<CtpResponse> {
@@ -172,7 +171,7 @@ impl<'a> CtpClient<'a> {
     /// - in Europe: https://impex.sphere.io/graphiql
     /// - in US: https://impex.commercetools.co/graphiql
     pub fn graphql(&mut self, query: &str) -> ::Result<CtpResponse> {
-        let body = try!(serde_json::to_string(&GraphQLQuery { query: query }));
+        let body = serde_json::to_string(&GraphQLQuery { query: query })?;
 
         self.request(Method::Post, "/graphql")
             .map(|r| r.body(&body))
@@ -180,7 +179,7 @@ impl<'a> CtpClient<'a> {
     }
 
     pub fn request(&mut self, method: Method, uri: &str) -> ::Result<RequestBuilder> {
-        let access_token = try!(self.get_token());
+        let access_token = self.get_token()?;
         let mut headers = Headers::new();
         headers.set(Authorization(Bearer { token: access_token }));
 
@@ -191,7 +190,7 @@ impl<'a> CtpClient<'a> {
 }
 
 fn send(r: RequestBuilder) -> ::Result<CtpResponse> {
-    Ok(try!(r.send().map(CtpResponse::new)))
+    Ok(r.send().map(CtpResponse::new)?)
 }
 
 #[cfg(test)]
