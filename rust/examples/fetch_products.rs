@@ -4,7 +4,11 @@ extern crate clap;
 extern crate log;
 extern crate env_logger;
 extern crate commercetools;
-extern crate rustc_serialize;
+
+#[macro_use]
+extern crate serde_derive;
+
+extern crate serde_json;
 
 use clap::{App, Arg};
 use commercetools::client::CtpClient;
@@ -14,21 +18,21 @@ use std::str::FromStr;
 
 
 #[allow(non_snake_case)]
-#[derive(Debug, RustcDecodable)]
+#[derive(Debug, Deserialize)]
 pub struct Reference {
     pub typeId: String,
     pub id: String,
 }
 
 #[allow(non_snake_case)]
-#[derive(Debug, RustcDecodable)]
+#[derive(Debug, Deserialize)]
 pub struct ProductVariant {
     pub id: u64,
     pub sku: Option<String>,
 }
 
 #[allow(non_snake_case)]
-#[derive(Debug, RustcDecodable)]
+#[derive(Debug, Deserialize)]
 pub struct ProductData {
     pub name: HashMap<String, String>,
     pub categories: Vec<Reference>,
@@ -41,7 +45,7 @@ pub struct ProductData {
 }
 
 #[allow(non_snake_case)]
-#[derive(Debug, RustcDecodable)]
+#[derive(Debug, Deserialize)]
 pub struct ProductCatalogData {
     pub published: bool,
     pub hasStagedChanges: bool,
@@ -50,7 +54,7 @@ pub struct ProductCatalogData {
 }
 
 #[allow(non_snake_case)]
-#[derive(Debug, RustcDecodable)]
+#[derive(Debug, Deserialize)]
 pub struct Product {
     pub id: String,
     pub version: u64,
@@ -61,7 +65,7 @@ pub struct Product {
 
 
 #[allow(non_snake_case)]
-#[derive(Debug, RustcDecodable)]
+#[derive(Debug, Deserialize)]
 pub struct Review {
     pub id: String,
     pub version: u64,

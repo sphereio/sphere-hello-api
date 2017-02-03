@@ -6,9 +6,9 @@ use hyper::method::Method;
 use hyper::net::HttpsConnector;
 use hyper::status::StatusCode;
 use hyper_openssl::OpensslClient;
-use rustc_serialize::Decodable;
+use serde::de::Deserialize;
 
-use rustc_serialize::json;
+use serde_json;
 use std::io::Read;
 
 /// a commercetools client
@@ -43,21 +43,21 @@ impl CtpResponse {
         Ok(body)
     }
 
-    pub fn body_as<R: Decodable>(&mut self) -> ::Result<R> {
+    pub fn body_as<R: Deserialize>(&mut self) -> ::Result<R> {
         let body = try!(self.body_as_string());
-        Ok(try!(json::decode::<R>(&body)))
+        Ok(try!(serde_json::from_str::<R>(&body)))
     }
 }
 
-#[derive(Debug, RustcDecodable)]
-pub struct PagedQueryResult<R: Decodable> {
+#[derive(Debug, Deserialize)]
+pub struct PagedQueryResult<R: Deserialize> {
     pub offset: u64,
     pub count: u64,
     pub total: Option<u64>,
     pub results: Vec<R>,
 }
 
-#[derive(Debug, RustcEncodable)]
+#[derive(Debug, Serialize)]
 pub struct GraphQLQuery<'a> {
     pub query: &'a str,
 }
@@ -143,11 +143,11 @@ impl<'a> CtpClient<'a> {
         Ok(new_token.access_token)
     }
 
-    pub fn list<R: Decodable>(&mut self, resource: &str) -> ::Result<PagedQueryResult<R>> {
+    pub fn list<R: Deserialize>(&mut self, resource: &str) -> ::Result<PagedQueryResult<R>> {
         let url = format!("/{}?withTotal=false", resource);
         let mut response = try!(self.get(&url));
         let body = try!(response.body_as_string());
-        Ok(try!(json::decode::<PagedQueryResult<R>>(&body)))
+        Ok(try!(serde_json::from_str::<PagedQueryResult<R>>(&body)))
     }
 
     pub fn get(&mut self, uri: &str) -> ::Result<CtpResponse> {
@@ -172,7 +172,7 @@ impl<'a> CtpClient<'a> {
     /// - in Europe: https://impex.sphere.io/graphiql
     /// - in US: https://impex.commercetools.co/graphiql
     pub fn graphql(&mut self, query: &str) -> ::Result<CtpResponse> {
-        let body = try!(json::encode(&GraphQLQuery { query: query }));
+        let body = try!(serde_json::to_string(&GraphQLQuery { query: query }));
 
         self.request(Method::Post, "/graphql")
             .map(|r| r.body(&body))

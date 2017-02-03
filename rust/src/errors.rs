@@ -7,8 +7,7 @@ error_chain! {
     // This section can be empty.
     foreign_links {
         Io(::std::io::Error);
-        JsonDecoding(::rustc_serialize::json::DecoderError);
-        JsonEncoding(::rustc_serialize::json::EncoderError);
+        JsonSerialization(::serde_json::Error);
         Hyper(::hyper::Error);
     }
 

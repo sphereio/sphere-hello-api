@@ -2,8 +2,14 @@
 
 extern crate hyper;
 extern crate hyper_openssl;
-extern crate rustc_serialize;
 extern crate chrono;
+
+extern crate serde;
+
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_json;
+
 #[macro_use]
 extern crate log;
 

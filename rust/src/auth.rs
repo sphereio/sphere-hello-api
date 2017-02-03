@@ -3,7 +3,7 @@ use chrono::*;
 use hyper::Client;
 use hyper::header::{Headers, Authorization, Basic};
 use hyper::status::StatusCode;
-use rustc_serialize::json;
+use serde_json;
 use std::fmt;
 use std::io::Read;
 
@@ -48,7 +48,7 @@ impl Token {
 }
 
 // internal data structure to read response from API
-#[derive(RustcDecodable)]
+#[derive(Deserialize, Debug)]
 struct TokenFromApi {
     access_token: String,
     expires_in: i64,
@@ -93,7 +93,7 @@ pub fn retrieve_token(client: &Client,
         Err(::ErrorKind::UnexpectedStatus("expected OK".to_string(), format!("{:?}", res)).into())
     } else {
         debug!("Response from '{}': {}", url, body);
-        let token_from_api = try!(json::decode::<TokenFromApi>(&body));
+        let token_from_api = try!(serde_json::from_str::<TokenFromApi>(&body));
         Ok(Token::new(token_from_api.access_token, token_from_api.expires_in))
     }
 }

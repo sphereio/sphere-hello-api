@@ -97,8 +97,10 @@ version = "0.1.0"
 authors = ["My name <my@email.com>"]
 
 [dependencies]
-hyper = "0.9"
-rustc-serialize = "0.3"
+hyper = "0.10"
+serde = "0.9"
+serde_derive = "0.9"
+serde_json = "0.9"
 
 [dependencies.commercetools]
 path = "<path to the commercetools lib>"
@@ -110,11 +112,10 @@ path = "<path to the commercetools lib>"
 The `commercetools` library uses:
 
 - [hyper](http://hyper.rs/) as http client.
-- [rustc_serialize::json](https://doc.rust-lang.org/rustc-serialize/rustc_serialize/json/index.html) as JSON encoding / decoding parser.
+- [serde_json](https://docs.serde.rs/serde_json/) as JSON encoding / decoding parser.
 - [log](https://doc.rust-lang.org/log) as logging facade.
 - [error_chain](http://rust-lang-nursery.github.io/rustup.rs/error_chain/index.html) to create errors with stack traces.
 
 ### Roadmap
 
 - move from blocking IO to non-blocking IO. The next major version of [hyper](http://hyper.rs/hyper/master/hyper/client/index.html) will allow that.
-- move from `rustc_serialize::json` to [Serde JSON](https://github.com/serde-rs/json). This library currently need the [unstable version rust](https://doc.rust-lang.org/book/nightly-rust.html) for convenience methods. We will wait for the support with the stable rust.
