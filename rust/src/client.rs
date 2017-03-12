@@ -119,8 +119,8 @@ impl<'a> CtpClient<'a> {
         self
     }
 
-    pub fn with_permissions(mut self, permissions: &Vec<&'a str>) -> CtpClient<'a> {
-        self.permissions = permissions.clone();
+    pub fn with_permissions(mut self, permissions: &[&'a str]) -> CtpClient<'a> {
+        self.permissions = permissions.to_vec();
         self
     }
 

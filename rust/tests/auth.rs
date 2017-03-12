@@ -26,7 +26,7 @@ fn auth_can_extract_oauth_token() {
                                                         "project_key",
                                                         "client_id",
                                                         "client_secret",
-                                                        &vec!["permission"]);
+                                                        &["permission"]);
         assert!(token.is_ok(), "token = {:?}", token);
     });
 }

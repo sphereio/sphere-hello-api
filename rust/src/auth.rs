@@ -61,7 +61,7 @@ pub fn retrieve_token(client: &Client,
                       project_key: &str,
                       client_id: &str,
                       client_secret: &str,
-                      permissions: &Vec<&str>)
+                      permissions: &[&str])
                       -> ::Result<Token> {
 
     info!("retrieving a new OAuth token from '{}' for project '{}' with client '{}'",
