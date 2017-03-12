@@ -138,8 +138,7 @@ impl<'a> CtpClient<'a> {
                                                          self.client_id,
                                                          self.client_secret,
                                                          &self.permissions));
-        let ref mut cache = self.token;
-        *cache = Some(new_token.clone());
+        self.token =  Some(new_token.clone());
         Ok(new_token.access_token)
     }
 
