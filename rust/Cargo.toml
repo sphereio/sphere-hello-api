@@ -8,7 +8,7 @@ hyper = "0.10"
 hyper-openssl = "0.2"
 chrono = "0.3"
 log = "0.3"
-error-chain = "0.8"
+error-chain = "0.10"
 
 serde = "0.9"
 serde_derive = "0.9"
