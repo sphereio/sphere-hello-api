@@ -10,9 +10,9 @@ chrono = "0.3"
 log = "0.3"
 error-chain = "0.10"
 
-serde = "0.9"
-serde_derive = "0.9"
-serde_json = "0.9"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
 
 [dev-dependencies]
 env_logger = "0.4"

@@ -6,7 +6,7 @@ use hyper::method::Method;
 use hyper::net::HttpsConnector;
 use hyper::status::StatusCode;
 use hyper_openssl::OpensslClient;
-use serde::de::Deserialize;
+use serde::de::DeserializeOwned;
 
 use serde_json;
 use std::io::Read;
@@ -43,14 +43,14 @@ impl CtpResponse {
         Ok(body)
     }
 
-    pub fn body_as<R: Deserialize>(&mut self) -> ::Result<R> {
+    pub fn body_as<R: DeserializeOwned>(&mut self) -> ::Result<R> {
         let body = self.body_as_string()?;
         Ok(serde_json::from_str::<R>(&body)?)
     }
 }
 
 #[derive(Debug, Deserialize)]
-pub struct PagedQueryResult<R: Deserialize> {
+pub struct PagedQueryResult<R> {
     pub offset: u64,
     pub count: u64,
     pub total: Option<u64>,
@@ -142,7 +142,7 @@ impl<'a> CtpClient<'a> {
         Ok(new_token.access_token)
     }
 
-    pub fn list<R: Deserialize>(&mut self, resource: &str) -> ::Result<PagedQueryResult<R>> {
+    pub fn list<R: DeserializeOwned>(&mut self, resource: &str) -> ::Result<PagedQueryResult<R>> {
         let url = format!("/{}?withTotal=false", resource);
         let body = self.get(&url)?.body_as_string()?;
         Ok(serde_json::from_str::<PagedQueryResult<R>>(&body)?)
