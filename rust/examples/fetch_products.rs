@@ -84,18 +84,20 @@ fn main() {
              <CLIENT_SECRET> 'client secret' \n\
             --region=[Europe|NorthAmerica] 'region to use (default to Europe)'")
         .arg(Arg::with_name("permissions")
-            .short("p")
-            .long("permission")
-            .help("permissions (default to manage_project)")
-            .multiple(true)
-            .takes_value(true))
+                 .short("p")
+                 .long("permission")
+                 .help("permissions (default to manage_project)")
+                 .multiple(true)
+                 .takes_value(true))
         .get_matches();
 
     let project_key = matches.value_of("PROJECT_KEY").unwrap();
     let client_id = matches.value_of("CLIENT_ID").unwrap();
     let client_secret = matches.value_of("CLIENT_SECRET").unwrap();
-    let region =
-        matches.value_of("region").map(|s| Region::from_str(s).unwrap()).unwrap_or(Region::Europe);
+    let region = matches
+        .value_of("region")
+        .map(|s| Region::from_str(s).unwrap())
+        .unwrap_or(Region::Europe);
     let permissions: Vec<&str> = if matches.is_present("permissions") {
         matches.values_of("permissions").unwrap().collect()
     } else {
@@ -112,7 +114,11 @@ fn main() {
     // paged result of products
     let products2 = ctp_client.list::<Product>("products").unwrap();
     println!("\nList of product ids: {:?}",
-             products2.results.iter().map(|p| &p.id).collect::<Vec<&String>>());
+             products2
+                 .results
+                 .iter()
+                 .map(|p| &p.id)
+                 .collect::<Vec<&String>>());
 
     println!("\nFirst product: {:?}", &products2.results.first());
 
@@ -120,7 +126,9 @@ fn main() {
     let mut reviews = ctp_client.get("/reviews?limit=1").unwrap();
     println!("\nReviews: {}", reviews.body_as_string().unwrap());
 
-    let create = permissions.iter().any(|&p| p == "manage_project" || p == "manage_products");
+    let create = permissions
+        .iter()
+        .any(|&p| p == "manage_project" || p == "manage_products");
     if create {
         // create and delete a review
         let create_review = r#"

@@ -5,7 +5,10 @@ use hyper::Client;
 use hyper::server::{Server, Request, Response, Handler};
 
 fn with_server<H: Handler + 'static, R>(handle: H, test: &Fn(String) -> R) -> R {
-    let mut server = Server::http("localhost:0").unwrap().handle(handle).unwrap();
+    let mut server = Server::http("localhost:0")
+        .unwrap()
+        .handle(handle)
+        .unwrap();
     let url = format!("http://localhost:{}", server.socket.port());
     let result = test(url);
     server.close().unwrap();
@@ -15,7 +18,8 @@ fn with_server<H: Handler + 'static, R>(handle: H, test: &Fn(String) -> R) -> R 
 #[test]
 fn auth_can_extract_oauth_token() {
     fn handle(_: Request, res: Response) {
-        res.send(b"{\"access_token\": \"test\", \"expires_in\": 234}").unwrap();
+        res.send(b"{\"access_token\": \"test\", \"expires_in\": 234}")
+            .unwrap();
     }
 
     with_server(handle,

@@ -69,6 +69,6 @@ mod tests {
         assert!(Region::from_str("India") ==
                 Result::Err("Region 'India' not recognized. Valid values: 'Europe', \
                              'NorthAmerica'."
-            .to_string()));
+                                    .to_string()));
     }
 }

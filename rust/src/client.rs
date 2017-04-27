@@ -138,7 +138,7 @@ impl<'a> CtpClient<'a> {
                                                          self.client_id,
                                                          self.client_secret,
                                                          &self.permissions));
-        self.token =  Some(new_token.clone());
+        self.token = Some(new_token.clone());
         Ok(new_token.access_token)
     }
 
@@ -149,8 +149,7 @@ impl<'a> CtpClient<'a> {
     }
 
     pub fn get(&mut self, uri: &str) -> ::Result<CtpResponse> {
-        self.request(Method::Get, uri)
-            .and_then(send)
+        self.request(Method::Get, uri).and_then(send)
     }
 
     pub fn post(&mut self, uri: &str, body: &str) -> ::Result<CtpResponse> {
@@ -160,8 +159,7 @@ impl<'a> CtpClient<'a> {
     }
 
     pub fn delete(&mut self, uri: &str) -> ::Result<CtpResponse> {
-        self.request(Method::Delete, uri)
-            .and_then(send)
+        self.request(Method::Delete, uri).and_then(send)
     }
 
     /// sends a [GraphQL](http://graphql.org/) query

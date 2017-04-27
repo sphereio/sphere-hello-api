@@ -70,11 +70,12 @@ pub fn retrieve_token(client: &Client,
           client_id);
     let mut auth_headers = Headers::new();
     auth_headers.set(Authorization(Basic {
-        username: client_id.to_owned(),
-        password: Some(client_secret.to_owned()),
-    }));
+                                       username: client_id.to_owned(),
+                                       password: Some(client_secret.to_owned()),
+                                   }));
 
-    let scope = permissions.iter()
+    let scope = permissions
+        .iter()
         .map(|&p| format!("{}:{}", p, project_key))
         .collect::<Vec<String>>()
         .join(" ");
