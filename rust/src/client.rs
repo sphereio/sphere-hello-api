@@ -5,7 +5,7 @@ use hyper::header::{Headers, Authorization, Bearer};
 use hyper::method::Method;
 use hyper::net::HttpsConnector;
 use hyper::status::StatusCode;
-use hyper_openssl::OpensslClient;
+use hyper_native_tls::NativeTlsClient;
 use serde::de::DeserializeOwned;
 
 use serde_json;
@@ -90,7 +90,7 @@ impl<'a> CtpClient<'a> {
     {
         let client = if region.api_url().starts_with("https") ||
                         region.auth_url().starts_with("https") {
-            let ssl = OpensslClient::new().unwrap();
+            let ssl = NativeTlsClient::new().unwrap();
             let connector = HttpsConnector::new(ssl);
             Client::with_connector(connector)
         } else {

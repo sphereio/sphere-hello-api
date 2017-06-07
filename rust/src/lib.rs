@@ -1,7 +1,7 @@
 #![recursion_limit = "1024"]
 
 extern crate hyper;
-extern crate hyper_openssl;
+extern crate hyper_native_tls;
 extern crate chrono;
 
 extern crate serde;
