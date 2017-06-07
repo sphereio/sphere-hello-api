@@ -10,26 +10,29 @@ use std::io::Read;
 /// access token
 #[derive(Debug, Clone)]
 pub struct Token {
-    pub access_token: String,
+    pub bearer_token: Vec<u8>,
     expires_at: DateTime<UTC>,
 }
 
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let token = String::from_utf8(self.bearer_token.clone())
+            .map_err(|e| {
+                         error!("{}", e);
+                         fmt::Error::default()
+                     })?;
         write!(f,
                "Token: access_token = {}, expires_at = {}",
-               self.access_token,
+               token,
                self.expires_at)
     }
 }
 
 impl Token {
-    pub fn new<S>(access_token: S, expires_in_s: i64) -> Token
-        where S: Into<String>
-    {
+    pub fn new(bearer_token: Vec<u8>, expires_in_s: i64) -> Token {
         let duration = Duration::seconds(expires_in_s);
         Token {
-            access_token: access_token.into(),
+            bearer_token: bearer_token,
             expires_at: UTC::now() + duration,
         }
     }
@@ -95,7 +98,8 @@ pub fn retrieve_token(client: &Client,
     } else {
         debug!("Response from '{}': {}", url, body);
         let token_from_api = serde_json::from_str::<TokenFromApi>(&body)?;
-        Ok(Token::new(token_from_api.access_token, token_from_api.expires_in))
+        let bearer_token = String::from("Bearer ") + token_from_api.access_token.as_str();
+        Ok(Token::new(bearer_token.into_bytes(), token_from_api.expires_in))
     }
 }
 
@@ -104,31 +108,21 @@ mod tests {
     use super::*;
 
     #[test]
-    fn make_auth_token_with_str_slice() {
-        Token::new("token", 60);
-    }
-
-    #[test]
-    fn make_auth_token_with_owned_string() {
-        Token::new(String::from("token"), 60);
-    }
-
-    #[test]
     fn token_is_valid_before_expiration_date() {
-        let token = Token::new("", 60);
+        let token = Token::new(vec![], 60);
         assert!(token.is_valid());
     }
 
     #[test]
     fn token_is_not_valid_after_expiration_date() {
-        let token = Token::new("", 60);
+        let token = Token::new(vec![], 60);
         let now = UTC::now() + Duration::minutes(2);
         assert!(!token.is_valid_with_margin(now, Duration::seconds(0)));
     }
 
     #[test]
     fn token_is_not_valid_in_margin() {
-        let token = Token::new("", 60);
+        let token = Token::new(vec![], 60);
         let now = UTC::now() + Duration::seconds(50);
         assert!(!token.is_valid_with_margin(now, Duration::seconds(20)));
     }

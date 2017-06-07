@@ -1,7 +1,7 @@
 use hyper::Client;
 use hyper::client::RequestBuilder;
 use hyper::client::response::Response;
-use hyper::header::{Headers, Authorization, Bearer};
+use hyper::header::Headers;
 use hyper::method::Method;
 use hyper::net::HttpsConnector;
 use hyper::status::StatusCode;
@@ -125,10 +125,10 @@ impl<'a> CtpClient<'a> {
     }
 
     // TODO (YaSi): avoid cloning the String on each call
-    pub fn get_token(&mut self) -> ::Result<String> {
+    pub fn get_token(&mut self) -> ::Result<Vec<u8>> {
         if let Some(ref token) = self.token {
             if token.is_valid() {
-                return Ok(token.access_token.clone());
+                return Ok(token.bearer_token.clone());
             }
         }
 
@@ -139,7 +139,7 @@ impl<'a> CtpClient<'a> {
                                                          self.client_secret,
                                                          &self.permissions));
         self.token = Some(new_token.clone());
-        Ok(new_token.access_token)
+        Ok(new_token.bearer_token)
     }
 
     pub fn list<R: DeserializeOwned>(&mut self, resource: &str) -> ::Result<PagedQueryResult<R>> {
@@ -176,10 +176,9 @@ impl<'a> CtpClient<'a> {
     }
 
     pub fn request(&mut self, method: Method, uri: &str) -> ::Result<RequestBuilder> {
-        let access_token = self.get_token()?;
+        let bearer_token = self.get_token()?;
         let mut headers = Headers::new();
-        headers.set(Authorization(Bearer { token: access_token }));
-
+        headers.set_raw("Authorization", vec![bearer_token]);
         let uri = format!("{}/{}{}", self.api_url, self.project_key, uri);
         let client = &self.client;
         Ok(client.request(method, &uri).headers(headers))
