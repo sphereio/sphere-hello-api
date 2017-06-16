@@ -1,7 +1,9 @@
 #![recursion_limit = "1024"]
 
+extern crate futures;
 extern crate hyper;
-extern crate hyper_native_tls;
+extern crate tokio_core;
+extern crate hyper_tls;
 extern crate chrono;
 
 extern crate serde;

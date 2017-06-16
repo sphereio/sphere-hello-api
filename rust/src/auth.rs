@@ -1,11 +1,22 @@
 use chrono::*;
 
-use hyper::Client;
+use hyper;
+use hyper::client::Client;
+use hyper::client::HttpConnector;
+use hyper::client::Request;
+use hyper::Method;
+use hyper::Uri;
+use futures::future;
+use futures::future::Future;
+use hyper::Body;
 use hyper::header::{Headers, Authorization, Basic};
-use hyper::status::StatusCode;
+use hyper::StatusCode;
 use serde_json;
 use std::fmt;
 use std::io::Read;
+use errors;
+use errors::Error;
+use futures::Stream;
 
 /// access token
 #[derive(Debug, Clone)]
@@ -59,23 +70,18 @@ struct TokenFromApi {
 
 /// retrieve an [OAuth token](http://dev.commercetools.com/http-api-authorization.html)
 /// for the commercetools API
-pub fn retrieve_token(client: &Client,
+pub fn retrieve_token(client: &Client<HttpConnector, Body>,
                       auth_url: &str,
                       project_key: &str,
                       client_id: &str,
                       client_secret: &str,
                       permissions: &[&str])
-                      -> ::Result<Token> {
+                      -> Box<Future<Item=Token, Error=Error>> {
 
     info!("retrieving a new OAuth token from '{}' for project '{}' with client '{}'",
           auth_url,
           project_key,
           client_id);
-    let mut auth_headers = Headers::new();
-    auth_headers.set(Authorization(Basic {
-                                       username: client_id.to_owned(),
-                                       password: Some(client_secret.to_owned()),
-                                   }));
 
     let scope = permissions
         .iter()
@@ -87,20 +93,45 @@ pub fn retrieve_token(client: &Client,
                       auth_url,
                       scope);
 
-    debug!("Trying to retrieve token with url '{}'", url);
-    let mut res = client.post(&url).headers(auth_headers).send()?;
+    let parsed_url = match url.parse::<Uri>() {
+        Err(e) => return Box::new(future::err(e.into())),
+        Ok(url) => url,
+    };
 
-    let mut body = String::new();
-    try!(res.read_to_string(&mut body));
+    debug!("Trying to retrieve token with url '{:?}'", &url);
+    let mut request = Request::new(Method::Post, parsed_url);
+    request.headers_mut().set(Authorization(Basic {
+                                       username: client_id.to_owned(),
+                                       password: Some(client_secret.to_owned()),
+                                   }));
 
-    if res.status != StatusCode::Ok {
-        Err(::ErrorKind::UnexpectedStatus("expected OK".to_string(), format!("{:?}", res)).into())
-    } else {
-        debug!("Response from '{}': {}", url, body);
-        let token_from_api = serde_json::from_str::<TokenFromApi>(&body)?;
-        let bearer_token = String::from("Bearer ") + token_from_api.access_token.as_str();
-        Ok(Token::new(bearer_token.into_bytes(), token_from_api.expires_in))
-    }
+    let result = client.request(request)
+        .then(move |res| {
+            match res {
+                Ok(res) => {
+                    if res.status() != StatusCode::Ok {
+                        let err: Error = ::ErrorKind::UnexpectedStatus("expected OK".to_string(), format!("{:?}", res)).into();
+                        Box::new(future::err(err))
+                    } else {
+                        let r: Box<Future<Item=Token, Error=Error>> =
+                            Box::new(res.body().concat().then(move |res| {
+                               match res {
+                                    Ok(body) => {
+                                        debug!("Response from '{}': {:?}", &url, body);
+                                        let token_from_api = serde_json::from_slice::<TokenFromApi>(&body)?;
+                                        let bearer_token = String::from("Bearer ") + token_from_api.access_token.as_str();
+                                        Ok(Token::new(bearer_token.into_bytes(), token_from_api.expires_in))
+                                    },
+                                    Err(e) => Err(e.into()),
+                                }
+                            }));
+                        r
+                    }
+                },
+                Err(e) => Box::new(future::err(e.into())),
+            }
+        });
+    Box::new(result)
 }
 
 #[cfg(test)]

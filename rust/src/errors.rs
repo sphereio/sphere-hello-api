@@ -9,6 +9,7 @@ error_chain! {
         Io(::std::io::Error);
         JsonSerialization(::serde_json::Error);
         Hyper(::hyper::Error);
+        Uri(::hyper::error::UriError);
     }
 
     // Define additional `ErrorKind` variants.
