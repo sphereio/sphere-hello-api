@@ -17,6 +17,7 @@ use std::io::Read;
 use errors;
 use errors::Error;
 use futures::Stream;
+use hyper_tls::HttpsConnector;
 
 /// access token
 #[derive(Debug, Clone)]
@@ -70,7 +71,7 @@ struct TokenFromApi {
 
 /// retrieve an [OAuth token](http://dev.commercetools.com/http-api-authorization.html)
 /// for the commercetools API
-pub fn retrieve_token(client: &Client<HttpConnector, Body>,
+pub fn retrieve_token(client: &Client<HttpsConnector<HttpConnector>, Body>,
                       auth_url: &str,
                       project_key: &str,
                       client_id: &str,

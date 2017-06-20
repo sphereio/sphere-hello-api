@@ -7,11 +7,15 @@ use hyper::client::FutureResponse;
 use hyper::client::Response;
 use hyper::header::Headers;
 use hyper::Method;
-// use hyper::net::HttpsConnector;
-// use hyper::status::StatusCode;
 use hyper_tls::HttpsConnector;
 use serde::de::DeserializeOwned;
 use tokio_core;
+use errors::Error;
+use futures::future;
+use futures::future::Future;
+use hyper;
+use hyper::Uri;
+use std::str::FromStr;
 
 use serde_json;
 use std::io::Read;
@@ -24,7 +28,7 @@ pub struct CtpClient<'a> {
     client_id: &'a str,
     client_secret: &'a str,
     permissions: Vec<&'a str>,
-    client: Client<HttpConnector, Body>,
+    client: Client<HttpsConnector<HttpConnector>, Body>,
     token: Option<::Token>,
 }
 
@@ -67,7 +71,7 @@ pub struct GraphQLQuery<'a> {
     pub query: &'a str,
 }
 
-//impl<'a> CtpClient<'a> {
+impl<'a> CtpClient<'a> {
     /// Returns a commercetools client for the given arguments
     ///
     /// # Arguments
@@ -86,70 +90,76 @@ pub struct GraphQLQuery<'a> {
     /// let region = Region::Europe;
     /// let client = CtpClient::new(&region, "my project key", "my client id", "my client secret");
     /// ```
-//    pub fn new<REG>(region: &REG,
-//                    project_key: &'a str,
-//                    client_id: &'a str,
-//                    client_secret: &'a str)
-//                    -> CtpClient<'a>
-//        where REG: ::HasApiUrl<'a> + ::HasAuthUrl<'a>
-//    {
-//        let mut core = tokio_core::reactor::Core::new().unwrap();
-//        let handle = core.handle();
-//
+    pub fn new<REG>(region: &REG,
+                    project_key: &'a str,
+                    client_id: &'a str,
+                    client_secret: &'a str)
+                    -> CtpClient<'a>
+        where REG: ::HasApiUrl<'a> + ::HasAuthUrl<'a>
+    {
+        let mut core = tokio_core::reactor::Core::new().unwrap();
+        let handle = core.handle();
+
 //        let client = if region.api_url().starts_with("https") ||
 //                        region.auth_url().starts_with("https") {
-//            Client::configure()
-//                .connector(HttpsConnector::new(4, &handle))
-//                .build(&handle)
+            let client = Client::configure()
+                .connector(HttpsConnector::new(4, &handle).unwrap())
+                .build(&handle);
 //        } else {
+//            Client::configure()
+//                .connector(HttpConnector::new(4, &handle))
+//                .build(&handle)
 //            Client::new(&handle)
 //        };
-//
-//        CtpClient {
-//            api_url: region.api_url(),
-//            auth_url: region.auth_url(),
-//            project_key: project_key,
-//            client_id: client_id,
-//            client_secret: client_secret,
-//            permissions: vec!["manage_project"],
-//            client: client,
-//            token: None,
-//        }
-//    }
 
-//    pub fn with_auth_url(mut self, auth_url: &'a str) -> CtpClient<'a> {
-//        self.auth_url = auth_url;
-//        self
-//    }
-//
-//    pub fn with_api_url(mut self, api_url: &'a str) -> CtpClient<'a> {
-//        self.api_url = api_url;
-//        self
-//    }
-//
-//    pub fn with_permissions(mut self, permissions: &[&'a str]) -> CtpClient<'a> {
-//        self.permissions = permissions.to_vec();
-//        self
-//    }
-//
+        CtpClient {
+            api_url: region.api_url(),
+            auth_url: region.auth_url(),
+            project_key: project_key,
+            client_id: client_id,
+            client_secret: client_secret,
+            permissions: vec!["manage_project"],
+            client: client,
+            token: None,
+        }
+    }
+
+    pub fn with_auth_url(mut self, auth_url: &'a str) -> CtpClient<'a> {
+        self.auth_url = auth_url;
+        self
+    }
+
+    pub fn with_api_url(mut self, api_url: &'a str) -> CtpClient<'a> {
+        self.api_url = api_url;
+        self
+    }
+
+    pub fn with_permissions(mut self, permissions: &[&'a str]) -> CtpClient<'a> {
+        self.permissions = permissions.to_vec();
+        self
+    }
+
 //    // TODO (YaSi): avoid cloning the String on each call
-//    pub fn get_token(&mut self) -> ::Result<Vec<u8>> {
-//        if let Some(ref token) = self.token {
-//            if token.is_valid() {
-//                return Ok(token.bearer_token.clone());
-//            }
-//        }
-//
-//        let new_token = try!(super::auth::retrieve_token(&self.client,
-//                                                         self.auth_url,
-//                                                         self.project_key,
-//                                                         self.client_id,
-//                                                         self.client_secret,
-//                                                         &self.permissions));
+    pub fn get_token(&mut self) -> Box<Future<Item=Vec<u8>, Error=Error>> {
+        if let Some(ref token) = self.token {
+            if token.is_valid() {
+                return Box::new(future::ok(token.bearer_token.clone()));
+            }
+        }
+
+        Box::new(super::auth::retrieve_token(&self.client,
+                                                         self.auth_url,
+                                                         self.project_key,
+                                                         self.client_id,
+                                                         self.client_secret,
+                                                         &self.permissions)
+        .map(|new_token| {
+            new_token.bearer_token
+        }))
 //        self.token = Some(new_token.clone());
 //        Ok(new_token.bearer_token)
-//    }
-//
+    }
+
 //    pub fn list<R: DeserializeOwned>(&mut self, resource: &str) -> ::Result<PagedQueryResult<R>> {
 //        let url = format!("/{}?withTotal=false", resource);
 //        let body = self.get(&url)?.body_as_string()?;
@@ -187,17 +197,16 @@ pub struct GraphQLQuery<'a> {
 //            .and_then(send)
 //    }
 //
-//    pub fn request(&mut self, &mut request: Request<Body>) -> ::Result<Request> {
-//        let bearer_token = self.get_token()?;
-//
-//        request.headers_mut().set_raw("Authorization", vec![bearer_token]);
-//        let uri = format!("{}/{}{}", self.api_url, self.project_key, request.uri());
-//        request.set_uri(uri);
-//
-//        let client = &self.client;
-//        Ok(client.request(request))
-//    }
-//}
+    pub fn request(&mut self, request: hyper::Request<Body>) -> Box<Future<Item=Request, Error=Error>> {
+        Box::new(self.get_token().and_then(|bearer_token| {
+            request.headers_mut().set_raw("Authorization", vec![bearer_token]);
+            let uri = format!("{}/{}{}", self.api_url, self.project_key, request.uri());
+            request.set_uri(Uri::from_str(&uri)?);
+
+            Ok(request)
+        }))
+    }
+}
 
 //fn send(r: Request) -> ::Result<CtpResponse> {
 //    Ok(r.send().map(CtpResponse::new)?)
