@@ -16,6 +16,9 @@ use futures::future::Future;
 use hyper;
 use hyper::Uri;
 use std::str::FromStr;
+use tokio_core::reactor::Handle;
+use hyper::header::ContentLength;
+use hyper::header::ContentType;
 
 use serde_json;
 use std::io::Read;
@@ -37,10 +40,10 @@ pub struct CtpResponse {
     pub http_response: Response,
 }
 
-//impl CtpResponse {
-//    pub fn new(http_response: Response) -> CtpResponse {
-//        CtpResponse { http_response: http_response }
-//    }
+impl CtpResponse {
+    pub fn new(http_response: Response) -> CtpResponse {
+        CtpResponse { http_response: http_response }
+    }
 //
 //    pub fn status(&self) -> StatusCode {
 //        self.http_reponse.status()
@@ -56,7 +59,7 @@ pub struct CtpResponse {
 //        let body = self.body_as_string()?;
 //        Ok(serde_json::from_str::<R>(&body)?)
 //    }
-//}
+}
 
 #[derive(Debug, Deserialize)]
 pub struct PagedQueryResult<R> {
@@ -93,13 +96,11 @@ impl<'a> CtpClient<'a> {
     pub fn new<REG>(region: &REG,
                     project_key: &'a str,
                     client_id: &'a str,
-                    client_secret: &'a str)
+                    client_secret: &'a str,
+                    handle: &Handle)
                     -> CtpClient<'a>
         where REG: ::HasApiUrl<'a> + ::HasAuthUrl<'a>
     {
-        let mut core = tokio_core::reactor::Core::new().unwrap();
-        let handle = core.handle();
-
 //        let client = if region.api_url().starts_with("https") ||
 //                        region.auth_url().starts_with("https") {
             let client = Client::configure()
@@ -187,23 +188,28 @@ impl<'a> CtpClient<'a> {
 //    ///
 //    /// - in Europe: https://impex.sphere.io/graphiql
 //    /// - in US: https://impex.commercetools.co/graphiql
-//    pub fn graphql(&mut self, query: &str) -> ::Result<CtpResponse> {
-//        let body = serde_json::to_string(&GraphQLQuery { query: query })?;
-//
-//        let mut request = Request::new(Method::Post, "/graphql");
-//        request.set_body(&body);
-//
-//        self.request(request)
-//            .and_then(send)
-//    }
-//
-    pub fn request(&mut self, request: hyper::Request<Body>) -> Box<Future<Item=Request, Error=Error>> {
-        Box::new(self.get_token().and_then(|bearer_token| {
-            request.headers_mut().set_raw("Authorization", vec![bearer_token]);
-            let uri = format!("{}/{}{}", self.api_url, self.project_key, request.uri());
-            request.set_uri(Uri::from_str(&uri)?);
+    pub fn graphql(&mut self, query: &str) -> Box<Future<Item=CtpResponse, Error=Error>> {
+        let body = serde_json::to_vec(&GraphQLQuery { query: query });
+        let client = self.client.clone();
+        Box::new(self.request(Method::Post, "/graphql").and_then(move |mut req| {
+            let body = body.unwrap();
+            req.headers_mut().set(ContentType::json());
+            req.headers_mut().set(ContentLength(body.len() as u64));
+            req.set_body(body);
 
-            Ok(request)
+            client.request(req).map(CtpResponse::new).map_err(|e| e.into())
+        }))
+    }
+
+    pub fn request(&mut self, method: Method, uri: &str) -> Box<Future<Item=Request, Error=Error>> {
+        let uri = format!("{}/{}{}", self.api_url, self.project_key, uri);
+        let uri = Uri::from_str(&uri).unwrap();
+        let mut request = Request::new(method, uri);
+
+        Box::new(self.get_token().map(|bearer_token| {
+            request.headers_mut().set_raw("Authorization", vec![bearer_token]);
+
+            request
         }))
     }
 }

@@ -6,6 +6,7 @@ use hyper::client::HttpConnector;
 use hyper::client::Request;
 use hyper::Method;
 use hyper::Uri;
+use hyper::header::ContentLength;
 use futures::future;
 use futures::future::Future;
 use hyper::Body;
@@ -105,9 +106,11 @@ pub fn retrieve_token(client: &Client<HttpsConnector<HttpConnector>, Body>,
                                        username: client_id.to_owned(),
                                        password: Some(client_secret.to_owned()),
                                    }));
+    request.headers_mut().set(ContentLength(0));
 
     let result = client.request(request)
         .then(move |res| {
+            debug!("response: '{:?}'", &res);
             match res {
                 Ok(res) => {
                     if res.status() != StatusCode::Ok {

@@ -3,6 +3,8 @@ extern crate clap;
 extern crate log;
 extern crate env_logger;
 extern crate commercetools;
+extern crate futures;
+extern crate tokio_core;
 
 #[macro_use]
 extern crate serde_derive;
@@ -14,6 +16,7 @@ use commercetools::client::CtpClient;
 use commercetools::region::Region;
 use std::collections::HashMap;
 use std::str::FromStr;
+use futures::future::Future;
 
 
 #[allow(non_snake_case)]
@@ -104,48 +107,51 @@ fn main() {
         vec!["manage_project"]
     };
 
-    let mut ctp_client = CtpClient::new(&region, project_key, client_id, client_secret)
+    let core = tokio_core::reactor::Core::new().unwrap();
+    let handle = core.handle();
+
+    let mut ctp_client = CtpClient::new(&region, project_key, client_id, client_secret, &handle)
         .with_permissions(&permissions);
 
     // simple GET call
-    let mut products = ctp_client.get("/products?limit=1").unwrap();
-    println!("\nProducts: {}", products.body_as_string().unwrap());
+//    let mut products = ctp_client.get("/products?limit=1").unwrap();
+//    println!("\nProducts: {}", products.body_as_string().unwrap());
 
     // paged result of products
-    let products2 = ctp_client.list::<Product>("products").unwrap();
-    println!("\nList of product ids: {:?}",
-             products2
-                 .results
-                 .iter()
-                 .map(|p| &p.id)
-                 .collect::<Vec<&String>>());
+//    let products2 = ctp_client.list::<Product>("products").unwrap();
+//    println!("\nList of product ids: {:?}",
+//             products2
+//                 .results
+//                 .iter()
+//                 .map(|p| &p.id)
+//                 .collect::<Vec<&String>>());
 
-    println!("\nFirst product: {:?}", &products2.results.first());
+//    println!("\nFirst product: {:?}", &products2.results.first());
 
     // read reviews
-    let mut reviews = ctp_client.get("/reviews?limit=1").unwrap();
-    println!("\nReviews: {}", reviews.body_as_string().unwrap());
+//    let mut reviews = ctp_client.get("/reviews?limit=1").unwrap();
+//    println!("\nReviews: {}", reviews.body_as_string().unwrap());
 
-    let create = permissions
-        .iter()
-        .any(|&p| p == "manage_project" || p == "manage_products");
-    if create {
-        // create and delete a review
-        let create_review = r#"
-        {
-          "text": "my review"
-        }
-        "#;
-        let mut review_call = ctp_client.post("/reviews", create_review).unwrap();
-        let review = review_call.body_as::<Review>().unwrap();
-        println!("\n[{}] New Review: {:?}", &review_call.status(), review);
-
-        let url = format!("/reviews/{}?version={}", review.id, review.version);
-        let mut deleted_review = ctp_client.delete(&url).unwrap();
-        println!("\n[{}] Deleted Review: {:?}",
-                 &deleted_review.status(),
-                 deleted_review.body_as_string().unwrap());
-    }
+//    let create = permissions
+//        .iter()
+//        .any(|&p| p == "manage_project" || p == "manage_products");
+//    if create {
+//        // create and delete a review
+//        let create_review = r#"
+//        {
+//          "text": "my review"
+//        }
+//        "#;
+//        let mut review_call = ctp_client.post("/reviews", create_review).unwrap();
+//        let review = review_call.body_as::<Review>().unwrap();
+//        println!("\n[{}] New Review: {:?}", &review_call.status(), review);
+//
+//        let url = format!("/reviews/{}?version={}", review.id, review.version);
+//        let mut deleted_review = ctp_client.delete(&url).unwrap();
+//        println!("\n[{}] Deleted Review: {:?}",
+//                 &deleted_review.status(),
+//                 deleted_review.body_as_string().unwrap());
+//    }
 
     // read products IDs with a Graph QL query
     let query = r#"
@@ -157,7 +163,7 @@ fn main() {
       }
     }
     "#;
-    let mut graphql = ctp_client.graphql(query).unwrap();
-    println!("\nGraphQL: {}", graphql.body_as_string().unwrap());
+    let mut graphql = ctp_client.graphql(query).wait().unwrap();
+    println!("\nGraphQL: {:?}", graphql);
 
 }
