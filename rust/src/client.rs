@@ -21,13 +21,13 @@ use serde_json;
 use std::io::Read;
 
 /// a commercetools client
-pub struct CtpClient<'a> {
-    api_url: &'a str,
-    auth_url: &'a str,
-    project_key: &'a str,
-    client_id: &'a str,
-    client_secret: &'a str,
-    permissions: Vec<&'a str>,
+pub struct CtpClient {
+    api_url: String,
+    auth_url: String,
+    project_key: String,
+    client_id: String,
+    client_secret: String,
+    permissions: Vec<String>,
     client: Client<HttpsConnector<HttpConnector>, Body>,
     token: Option<::Token>,
 }
@@ -71,7 +71,7 @@ pub struct GraphQLQuery<'a> {
     pub query: &'a str,
 }
 
-impl<'a> CtpClient<'a> {
+impl CtpClient {
     /// Returns a commercetools client for the given arguments
     ///
     /// # Arguments
@@ -91,11 +91,11 @@ impl<'a> CtpClient<'a> {
     /// let client = CtpClient::new(&region, "my project key", "my client id", "my client secret");
     /// ```
     pub fn new<REG>(region: &REG,
-                    project_key: &'a str,
-                    client_id: &'a str,
-                    client_secret: &'a str)
-                    -> CtpClient<'a>
-        where REG: ::HasApiUrl<'a> + ::HasAuthUrl<'a>
+                    project_key: String,
+                    client_id: String,
+                    client_secret: String)
+                    -> CtpClient
+        where REG: ::HasApiUrl + ::HasAuthUrl
     {
         let mut core = tokio_core::reactor::Core::new().unwrap();
         let handle = core.handle();
@@ -118,23 +118,23 @@ impl<'a> CtpClient<'a> {
             project_key: project_key,
             client_id: client_id,
             client_secret: client_secret,
-            permissions: vec!["manage_project"],
+            permissions: vec![],
             client: client,
             token: None,
         }
     }
 
-    pub fn with_auth_url(mut self, auth_url: &'a str) -> CtpClient<'a> {
+    pub fn with_auth_url(mut self, auth_url: String) -> CtpClient {
         self.auth_url = auth_url;
         self
     }
 
-    pub fn with_api_url(mut self, api_url: &'a str) -> CtpClient<'a> {
+    pub fn with_api_url(mut self, api_url: String) -> CtpClient {
         self.api_url = api_url;
         self
     }
 
-    pub fn with_permissions(mut self, permissions: &[&'a str]) -> CtpClient<'a> {
+    pub fn with_permissions(mut self, permissions: &[String]) -> CtpClient {
         self.permissions = permissions.to_vec();
         self
     }
@@ -148,11 +148,11 @@ impl<'a> CtpClient<'a> {
         }
 
         Box::new(super::auth::retrieve_token(&self.client,
-                                                         self.auth_url,
-                                                         self.project_key,
-                                                         self.client_id,
-                                                         self.client_secret,
-                                                         &self.permissions)
+                                                         &self.auth_url,
+                                                         &self.project_key,
+                                                         &self.client_id,
+                                                         &self.client_secret,
+                                                         &vec![])
         .map(|new_token| {
             new_token.bearer_token
         }))
