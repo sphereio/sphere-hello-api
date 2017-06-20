@@ -197,12 +197,12 @@ impl CtpClient {
 //            .and_then(send)
 //    }
 //
-    pub fn request(&mut self, request: hyper::Request<Body>) -> Box<Future<Item=Request, Error=Error>> {
-        Box::new(self.get_token().and_then(|bearer_token| {
+    pub fn request(&mut self, mut request: hyper::Request<Body>) -> Box<Future<Item=Request, Error=Error>> {
+        let uri = format!("{}/{}{}", self.api_url, self.project_key, request.uri());
+        request.set_uri(Uri::from_str(&uri).unwrap());
+        let token = self.get_token();
+        Box::new(token.and_then(|bearer_token| {
             request.headers_mut().set_raw("Authorization", vec![bearer_token]);
-            let uri = format!("{}/{}{}", self.api_url, self.project_key, request.uri());
-            request.set_uri(Uri::from_str(&uri)?);
-
             Ok(request)
         }))
     }
