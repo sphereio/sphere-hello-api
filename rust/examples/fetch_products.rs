@@ -107,7 +107,7 @@ fn main() {
         vec!["manage_project"]
     };
 
-    let core = tokio_core::reactor::Core::new().unwrap();
+    let mut core = tokio_core::reactor::Core::new().unwrap();
     let handle = core.handle();
 
     let mut ctp_client = CtpClient::new(&region, project_key, client_id, client_secret, &handle)
@@ -163,7 +163,7 @@ fn main() {
       }
     }
     "#;
-    let mut graphql = ctp_client.graphql(query).wait().unwrap();
+    let mut graphql = core.run(ctp_client.graphql(query)).unwrap();
     println!("\nGraphQL: {:?}", graphql);
 
 }
