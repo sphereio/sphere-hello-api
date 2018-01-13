@@ -6,7 +6,7 @@ use hyper::client::HttpConnector;
 use hyper::client::Request;
 use hyper::Method;
 use hyper::Uri;
-use hyper::header::ContentLength;
+use hyper::header::{ContentLength, ContentType};
 use futures::future;
 use futures::future::Future;
 use hyper::Body;
@@ -14,6 +14,7 @@ use hyper::header::{Headers, Authorization, Basic};
 use hyper::StatusCode;
 use serde_json;
 use std::fmt;
+use std::str;
 use std::io::Read;
 use errors;
 use errors::Error;
@@ -91,9 +92,7 @@ pub fn retrieve_token(client: &Client<HttpsConnector<HttpConnector>, Body>,
         .collect::<Vec<String>>()
         .join(" ");
 
-    let url = format!("{}/oauth/token?grant_type=client_credentials&scope={}",
-                      auth_url,
-                      scope);
+    let url = format!("{}/oauth/token", auth_url);
 
     let parsed_url = match url.parse::<Uri>() {
         Err(e) => return Box::new(future::err(e.into())),
@@ -106,7 +105,13 @@ pub fn retrieve_token(client: &Client<HttpsConnector<HttpConnector>, Body>,
                                        username: client_id.to_owned(),
                                        password: Some(client_secret.to_owned()),
                                    }));
-    request.headers_mut().set(ContentLength(0));
+
+    let body = format!("grant_type=client_credentials&scope={}", scope);
+    request.headers_mut().set(ContentType::form_url_encoded());
+    request.headers_mut().set(ContentLength(body.len() as u64));
+    request.set_body(body);
+
+    debug!("request: '{:?}'", &request);
 
     let result = client.request(request)
         .then(move |res| {
@@ -118,10 +123,10 @@ pub fn retrieve_token(client: &Client<HttpsConnector<HttpConnector>, Body>,
                         Box::new(future::err(err))
                     } else {
                         let r: Box<Future<Item=Token, Error=Error>> =
-                            Box::new(res.body().concat().then(move |res| {
+                            Box::new(res.body().concat2().then(move |res| {
                                match res {
                                     Ok(body) => {
-                                        debug!("Response from '{}': {:?}", &url, body);
+                                        debug!("Response from '{}': {:?}", &url, str::from_utf8(&body));
                                         let token_from_api = serde_json::from_slice::<TokenFromApi>(&body)?;
                                         let bearer_token = String::from("Bearer ") + token_from_api.access_token.as_str();
                                         Ok(Token::new(bearer_token.into_bytes(), token_from_api.expires_in))
