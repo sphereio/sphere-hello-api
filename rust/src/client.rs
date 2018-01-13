@@ -167,11 +167,13 @@ impl<'a> CtpClient<'a> {
 //        Ok(serde_json::from_str::<PagedQueryResult<R>>(&body)?)
 //    }
 //
-//    pub fn get(&mut self, uri: &str) -> ::Result<CtpResponse> {
-//        let req = Request::new(Method::Get, uri);
-//        self.request(req).and_then(send)
-//    }
-//
+    pub fn get(&mut self, uri: &str) -> Box<Future<Item=CtpResponse, Error=Error>>  {
+        let client = self.client.clone();
+        Box::new(self.request(Method::Get, uri).and_then(move |req| {
+            client.request(req).map(CtpResponse::new).map_err(|e| e.into())
+        }))
+    }
+
 //    pub fn post(&mut self, uri: &str, body: &str) -> ::Result<CtpResponse> {
 //        let mut request = Request::new(Method::Post, uri);
 //        request.set_body(&body);

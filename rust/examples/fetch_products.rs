@@ -114,8 +114,8 @@ fn main() {
         .with_permissions(&permissions);
 
     // simple GET call
-//    let mut products = ctp_client.get("/products?limit=1").unwrap();
-//    println!("\nProducts: {}", products.body_as_string().unwrap());
+    let products = core.run(ctp_client.get("/products?limit=1")).unwrap();
+    println!("\nProducts: {:?}", products);
 
     // paged result of products
 //    let products2 = ctp_client.list::<Product>("products").unwrap();
@@ -163,7 +163,7 @@ fn main() {
       }
     }
     "#;
-    let mut graphql = core.run(ctp_client.graphql(query)).unwrap();
+    let graphql = core.run(ctp_client.graphql(query)).unwrap();
     println!("\nGraphQL: {:?}", graphql);
 
 }
