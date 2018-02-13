@@ -13,8 +13,8 @@ extern crate serde_json;
 #[macro_use]
 extern crate log;
 
-#[macro_use]
-extern crate error_chain;
+extern crate failure;
+#[macro_use] extern crate failure_derive;
 
 pub use auth::Token;
 pub use errors::*;

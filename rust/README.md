@@ -102,7 +102,7 @@ The `commercetools` library uses:
 - [hyper](http://hyper.rs/) as http client.
 - [serde_json](https://docs.serde.rs/serde_json/) as JSON encoding / decoding parser.
 - [log](https://doc.rust-lang.org/log) as logging facade.
-- [error_chain](http://rust-lang-nursery.github.io/rustup.rs/error_chain/index.html) to create errors with stack traces.
+- [failure](https://docs.rs/failure) to create errors with stack traces.
 
 ### Roadmap
 

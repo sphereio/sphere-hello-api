@@ -94,7 +94,8 @@ pub fn retrieve_token(client: &Client,
     try!(res.read_to_string(&mut body));
 
     if res.status != StatusCode::Ok {
-        Err(::ErrorKind::UnexpectedStatus("expected OK".to_string(), format!("{:?}", res)).into())
+        let err = ::UnexpectedStatus::new("expected OK".to_string(), format!("{:?}", res));
+        Err(err)?
     } else {
         debug!("Response from '{}': {}", url, body);
         let token_from_api = serde_json::from_str::<TokenFromApi>(&body)?;
