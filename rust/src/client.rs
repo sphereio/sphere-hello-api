@@ -167,20 +167,25 @@ impl<'a> CtpClient<'a> {
 //        Ok(serde_json::from_str::<PagedQueryResult<R>>(&body)?)
 //    }
 //
-    pub fn get(&mut self, uri: &str) -> Box<Future<Item=CtpResponse, Error=Error>>  {
+    pub fn get(&mut self, uri: &str) -> Box<Future<Item=CtpResponse, Error=Error>> {
         let client = self.client.clone();
         Box::new(self.request(Method::Get, uri).and_then(move |req| {
             client.request(req).map(CtpResponse::new).map_err(|e| e.into())
         }))
     }
 
-//    pub fn post(&mut self, uri: &str, body: &str) -> ::Result<CtpResponse> {
-//        let mut request = Request::new(Method::Post, uri);
-//        request.set_body(&body);
-//        self.request(request)
-//            .and_then(send)
-//    }
-//
+    pub fn post(&mut self, uri: &str, body: &str) -> Box<Future<Item=CtpResponse, Error=Error>>  {
+        let client = self.client.clone();
+        let body: String = body.to_string();
+        Box::new(self.request(Method::Post, uri).and_then(move |mut req| {
+            req.headers_mut().set(ContentType::json());
+            req.headers_mut().set(ContentLength(body.len() as u64));
+            req.set_body(body);
+
+            client.request(req).map(CtpResponse::new).map_err(|e| e.into())
+        }))
+    }
+
 //    pub fn delete(&mut self, uri: &str) -> ::Result<CtpResponse> {
 //        self.request(Request::new(Method::Delete, uri)).and_then(send)
 //    }
