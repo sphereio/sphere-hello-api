@@ -1,8 +1,8 @@
-extern crate hyper;
 extern crate clap;
-extern crate log;
-extern crate env_logger;
 extern crate commercetools;
+extern crate env_logger;
+extern crate hyper;
+extern crate log;
 
 #[macro_use]
 extern crate serde_derive;
@@ -14,7 +14,6 @@ use commercetools::client::CtpClient;
 use commercetools::region::Region;
 use std::collections::HashMap;
 use std::str::FromStr;
-
 
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
@@ -62,7 +61,6 @@ pub struct Product {
     pub masterData: ProductCatalogData,
 }
 
-
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 pub struct Review {
@@ -73,22 +71,25 @@ pub struct Review {
     pub text: Option<String>,
 }
 
-
 fn main() {
     env_logger::init().unwrap();
     let matches = App::new("sphere")
         .version("1.0")
         .author("Yann Simon <yann.simon@commercetools.com>")
-        .args_from_usage("<PROJECT_KEY> 'project key' \n\
+        .args_from_usage(
+            "<PROJECT_KEY> 'project key' \n\
              <CLIENT_ID> 'client ID' \n\
              <CLIENT_SECRET> 'client secret' \n\
-            --region=[Europe|NorthAmerica] 'region to use (default to Europe)'")
-        .arg(Arg::with_name("permissions")
-                 .short("p")
-                 .long("permission")
-                 .help("permissions (default to manage_project)")
-                 .multiple(true)
-                 .takes_value(true))
+             --region=[Europe|NorthAmerica] 'region to use (default to Europe)'",
+        )
+        .arg(
+            Arg::with_name("permissions")
+                .short("p")
+                .long("permission")
+                .help("permissions (default to manage_project)")
+                .multiple(true)
+                .takes_value(true),
+        )
         .get_matches();
 
     let project_key = matches.value_of("PROJECT_KEY").unwrap();
@@ -113,12 +114,14 @@ fn main() {
 
     // paged result of products
     let products2 = ctp_client.list::<Product>("products").unwrap();
-    println!("\nList of product ids: {:?}",
-             products2
-                 .results
-                 .iter()
-                 .map(|p| &p.id)
-                 .collect::<Vec<&String>>());
+    println!(
+        "\nList of product ids: {:?}",
+        products2
+            .results
+            .iter()
+            .map(|p| &p.id)
+            .collect::<Vec<&String>>()
+    );
 
     println!("\nFirst product: {:?}", &products2.results.first());
 
@@ -142,9 +145,11 @@ fn main() {
 
         let url = format!("/reviews/{}?version={}", review.id, review.version);
         let mut deleted_review = ctp_client.delete(&url).unwrap();
-        println!("\n[{}] Deleted Review: {:?}",
-                 &deleted_review.status(),
-                 deleted_review.body_as_string().unwrap());
+        println!(
+            "\n[{}] Deleted Review: {:?}",
+            &deleted_review.status(),
+            deleted_review.body_as_string().unwrap()
+        );
     }
 
     // read products IDs with a Graph QL query
@@ -159,5 +164,4 @@ fn main() {
     "#;
     let mut graphql = ctp_client.graphql(query).unwrap();
     println!("\nGraphQL: {}", graphql.body_as_string().unwrap());
-
 }

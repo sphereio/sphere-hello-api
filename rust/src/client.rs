@@ -30,7 +30,9 @@ pub struct CtpResponse {
 
 impl CtpResponse {
     pub fn new(http_reponse: Response) -> CtpResponse {
-        CtpResponse { http_reponse: http_reponse }
+        CtpResponse {
+            http_reponse: http_reponse,
+        }
     }
 
     pub fn status(&self) -> StatusCode {
@@ -81,21 +83,23 @@ impl<'a> CtpClient<'a> {
     /// let region = Region::Europe;
     /// let client = CtpClient::new(&region, "my project key", "my client id", "my client secret");
     /// ```
-    pub fn new<REG>(region: &REG,
-                    project_key: &'a str,
-                    client_id: &'a str,
-                    client_secret: &'a str)
-                    -> CtpClient<'a>
-        where REG: ::HasApiUrl<'a> + ::HasAuthUrl<'a>
+    pub fn new<REG>(
+        region: &REG,
+        project_key: &'a str,
+        client_id: &'a str,
+        client_secret: &'a str,
+    ) -> CtpClient<'a>
+    where
+        REG: ::HasApiUrl<'a> + ::HasAuthUrl<'a>,
     {
-        let client = if region.api_url().starts_with("https") ||
-                        region.auth_url().starts_with("https") {
-            let ssl = NativeTlsClient::new().unwrap();
-            let connector = HttpsConnector::new(ssl);
-            Client::with_connector(connector)
-        } else {
-            Client::new()
-        };
+        let client =
+            if region.api_url().starts_with("https") || region.auth_url().starts_with("https") {
+                let ssl = NativeTlsClient::new().unwrap();
+                let connector = HttpsConnector::new(ssl);
+                Client::with_connector(connector)
+            } else {
+                Client::new()
+            };
 
         CtpClient {
             api_url: region.api_url(),
@@ -132,12 +136,14 @@ impl<'a> CtpClient<'a> {
             }
         }
 
-        let new_token = try!(super::auth::retrieve_token(&self.client,
-                                                         self.auth_url,
-                                                         self.project_key,
-                                                         self.client_id,
-                                                         self.client_secret,
-                                                         &self.permissions));
+        let new_token = try!(super::auth::retrieve_token(
+            &self.client,
+            self.auth_url,
+            self.project_key,
+            self.client_id,
+            self.client_secret,
+            &self.permissions
+        ));
         self.token = Some(new_token.clone());
         Ok(new_token.bearer_token)
     }
@@ -197,10 +203,12 @@ mod tests {
     #[test]
     fn new_client() {
         CtpClient::new(&Region::Europe, "project_key", "client_id", "client_secret");
-        CtpClient::new(&Region::NorthAmerica,
-                       "project_key",
-                       "client_id",
-                       "client_secret");
+        CtpClient::new(
+            &Region::NorthAmerica,
+            "project_key",
+            "client_id",
+            "client_secret",
+        );
     }
 
     #[test]

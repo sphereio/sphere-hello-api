@@ -21,10 +21,10 @@ impl FromStr for Region {
         match s.to_string().to_lowercase().as_ref() {
             "europe" => Ok(Region::Europe),
             "northamerica" => Ok(Region::NorthAmerica),
-            _ => {
-                Err(format!("Region '{}' not recognized. Valid values: 'Europe', 'NorthAmerica'.",
-                            s))
-            }
+            _ => Err(format!(
+                "Region '{}' not recognized. Valid values: 'Europe', 'NorthAmerica'.",
+                s
+            )),
         }
     }
 }
@@ -50,7 +50,6 @@ impl<'a> HasApiUrl<'a> for Region {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -66,9 +65,13 @@ mod tests {
 
     #[test]
     fn unparsable_region_err() {
-        assert!(Region::from_str("India") ==
-                Result::Err("Region 'India' not recognized. Valid values: 'Europe', \
-                             'NorthAmerica'."
-                                    .to_string()));
+        assert!(
+            Region::from_str("India")
+                == Result::Err(
+                    "Region 'India' not recognized. Valid values: 'Europe', \
+                     'NorthAmerica'."
+                        .to_string()
+                )
+        );
     }
 }
