@@ -1,13 +1,5 @@
-extern crate clap;
-extern crate commercetools;
-extern crate env_logger;
-extern crate hyper;
-extern crate log;
-
 #[macro_use]
 extern crate serde_derive;
-
-extern crate serde_json;
 
 use clap::{App, Arg};
 use commercetools::client::CtpClient;

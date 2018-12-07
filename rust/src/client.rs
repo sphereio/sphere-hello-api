@@ -20,7 +20,7 @@ pub struct CtpClient<'a> {
     client_secret: &'a str,
     permissions: Vec<&'a str>,
     client: Client,
-    token: Option<::Token>,
+    token: Option<crate::Token>,
 }
 
 #[derive(Debug)]
@@ -39,13 +39,13 @@ impl CtpResponse {
         self.http_reponse.status
     }
 
-    pub fn body_as_string(&mut self) -> ::Result<String> {
+    pub fn body_as_string(&mut self) -> crate::Result<String> {
         let mut body = String::new();
-        try!(self.http_reponse.read_to_string(&mut body));
+        self.http_reponse.read_to_string(&mut body)?;
         Ok(body)
     }
 
-    pub fn body_as<R: DeserializeOwned>(&mut self) -> ::Result<R> {
+    pub fn body_as<R: DeserializeOwned>(&mut self) -> crate::Result<R> {
         let body = self.body_as_string()?;
         Ok(serde_json::from_str::<R>(&body)?)
     }
@@ -90,7 +90,7 @@ impl<'a> CtpClient<'a> {
         client_secret: &'a str,
     ) -> CtpClient<'a>
     where
-        REG: ::HasApiUrl<'a> + ::HasAuthUrl<'a>,
+        REG: crate::HasApiUrl<'a> + crate::HasAuthUrl<'a>,
     {
         let client =
             if region.api_url().starts_with("https") || region.auth_url().starts_with("https") {
@@ -129,42 +129,45 @@ impl<'a> CtpClient<'a> {
     }
 
     // TODO (YaSi): avoid cloning the String on each call
-    pub fn get_token(&mut self) -> ::Result<Vec<u8>> {
+    pub fn get_token(&mut self) -> crate::Result<Vec<u8>> {
         if let Some(ref token) = self.token {
             if token.is_valid() {
                 return Ok(token.bearer_token.clone());
             }
         }
 
-        let new_token = try!(super::auth::retrieve_token(
+        let new_token = super::auth::retrieve_token(
             &self.client,
             self.auth_url,
             self.project_key,
             self.client_id,
             self.client_secret,
-            &self.permissions
-        ));
+            &self.permissions,
+        )?;
         self.token = Some(new_token.clone());
         Ok(new_token.bearer_token)
     }
 
-    pub fn list<R: DeserializeOwned>(&mut self, resource: &str) -> ::Result<PagedQueryResult<R>> {
+    pub fn list<R: DeserializeOwned>(
+        &mut self,
+        resource: &str,
+    ) -> crate::Result<PagedQueryResult<R>> {
         let url = format!("/{}?withTotal=false", resource);
         let body = self.get(&url)?.body_as_string()?;
         Ok(serde_json::from_str::<PagedQueryResult<R>>(&body)?)
     }
 
-    pub fn get(&mut self, uri: &str) -> ::Result<CtpResponse> {
+    pub fn get(&mut self, uri: &str) -> crate::Result<CtpResponse> {
         self.request(Method::Get, uri).and_then(send)
     }
 
-    pub fn post(&mut self, uri: &str, body: &str) -> ::Result<CtpResponse> {
+    pub fn post(&mut self, uri: &str, body: &str) -> crate::Result<CtpResponse> {
         self.request(Method::Post, uri)
             .map(|r| r.body(body))
             .and_then(send)
     }
 
-    pub fn delete(&mut self, uri: &str) -> ::Result<CtpResponse> {
+    pub fn delete(&mut self, uri: &str) -> crate::Result<CtpResponse> {
         self.request(Method::Delete, uri).and_then(send)
     }
 
@@ -173,7 +176,7 @@ impl<'a> CtpClient<'a> {
     ///
     /// - in Europe: https://impex.sphere.io/graphiql
     /// - in US: https://impex.commercetools.co/graphiql
-    pub fn graphql(&mut self, query: &str) -> ::Result<CtpResponse> {
+    pub fn graphql(&mut self, query: &str) -> crate::Result<CtpResponse> {
         let body = serde_json::to_string(&GraphQLQuery { query: query })?;
 
         self.request(Method::Post, "/graphql")
@@ -181,7 +184,7 @@ impl<'a> CtpClient<'a> {
             .and_then(send)
     }
 
-    pub fn request(&mut self, method: Method, uri: &str) -> ::Result<RequestBuilder> {
+    pub fn request(&mut self, method: Method, uri: &str) -> crate::Result<RequestBuilder> {
         let bearer_token = self.get_token()?;
         let mut headers = Headers::new();
         headers.set_raw("Authorization", vec![bearer_token]);
@@ -191,7 +194,7 @@ impl<'a> CtpClient<'a> {
     }
 }
 
-fn send(r: RequestBuilder) -> ::Result<CtpResponse> {
+fn send(r: RequestBuilder) -> crate::Result<CtpResponse> {
     Ok(r.send().map(CtpResponse::new)?)
 }
 

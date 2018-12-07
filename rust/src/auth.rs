@@ -66,7 +66,7 @@ pub fn retrieve_token(
     client_id: &str,
     client_secret: &str,
     permissions: &[&str],
-) -> ::Result<Token> {
+) -> crate::Result<Token> {
     info!(
         "retrieving a new OAuth token from '{}' for project '{}' with client '{}'",
         auth_url, project_key, client_id
@@ -92,10 +92,10 @@ pub fn retrieve_token(
     let mut res = client.post(&url).headers(auth_headers).send()?;
 
     let mut body = String::new();
-    try!(res.read_to_string(&mut body));
+    res.read_to_string(&mut body)?;
 
     if res.status != StatusCode::Ok {
-        let err = ::UnexpectedStatus::new("expected OK".to_string(), format!("{:?}", res));
+        let err = crate::UnexpectedStatus::new("expected OK".to_string(), format!("{:?}", res));
         Err(err)?
     } else {
         debug!("Response from '{}': {}", url, body);
