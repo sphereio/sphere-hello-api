@@ -14,7 +14,6 @@ extern crate serde_json;
 extern crate log;
 
 extern crate failure;
-#[macro_use]
 extern crate failure_derive;
 
 pub use auth::Token;
