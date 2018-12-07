@@ -6,7 +6,10 @@ pub type Result<T> = result::Result<T, Error>;
 // use pattern https://boats.gitlab.io/failure/custom-fail.html
 
 #[derive(Fail, Debug)]
-#[fail(display = "unexpected http status: {}. Response: '{:?}'", msg, response)]
+#[fail(
+    display = "unexpected http status: {}. Response: '{:?}'",
+    msg, response
+)]
 pub struct UnexpectedStatus {
     msg: String,
     response: String,

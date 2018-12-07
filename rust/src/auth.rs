@@ -1,8 +1,8 @@
 use chrono::*;
 
-use hyper::Client;
 use hyper::header::{Authorization, Basic, Headers};
 use hyper::status::StatusCode;
+use hyper::Client;
 use serde_json;
 use std::fmt;
 use std::io::Read;

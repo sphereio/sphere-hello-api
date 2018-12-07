@@ -1,10 +1,10 @@
-use hyper::Client;
-use hyper::client::RequestBuilder;
 use hyper::client::response::Response;
+use hyper::client::RequestBuilder;
 use hyper::header::Headers;
 use hyper::method::Method;
 use hyper::net::HttpsConnector;
 use hyper::status::StatusCode;
+use hyper::Client;
 use hyper_native_tls::NativeTlsClient;
 use serde::de::DeserializeOwned;
 
@@ -197,8 +197,8 @@ fn send(r: RequestBuilder) -> ::Result<CtpResponse> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::region::Region;
+    use super::*;
 
     #[test]
     fn new_client() {

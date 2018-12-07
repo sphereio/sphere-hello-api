@@ -1,8 +1,8 @@
 extern crate commercetools;
 extern crate hyper;
 
-use hyper::Client;
 use hyper::server::{Handler, Request, Response, Server};
+use hyper::Client;
 
 fn with_server<H: Handler + 'static, R>(handle: H, test: &Fn(String) -> R) -> R {
     let mut server = Server::http("localhost:0").unwrap().handle(handle).unwrap();

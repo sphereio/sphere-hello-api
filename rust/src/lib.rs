@@ -20,7 +20,7 @@ pub use auth::Token;
 pub use errors::*;
 pub use region::*;
 
-mod errors;
 pub mod auth;
-pub mod region;
 pub mod client;
+mod errors;
+pub mod region;
