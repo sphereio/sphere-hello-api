@@ -25,23 +25,23 @@ pub struct CtpClient<'a> {
 
 #[derive(Debug)]
 pub struct CtpResponse {
-    pub http_reponse: Response,
+    pub http_response: Response,
 }
 
 impl CtpResponse {
-    pub fn new(http_reponse: Response) -> CtpResponse {
+    pub fn new(http_response: Response) -> CtpResponse {
         CtpResponse {
-            http_reponse: http_reponse,
+            http_response,
         }
     }
 
     pub fn status(&self) -> StatusCode {
-        self.http_reponse.status
+        self.http_response.status
     }
 
     pub fn body_as_string(&mut self) -> crate::Result<String> {
         let mut body = String::new();
-        self.http_reponse.read_to_string(&mut body)?;
+        self.http_response.read_to_string(&mut body)?;
         Ok(body)
     }
 
@@ -104,11 +104,11 @@ impl<'a> CtpClient<'a> {
         CtpClient {
             api_url: region.api_url(),
             auth_url: region.auth_url(),
-            project_key: project_key,
-            client_id: client_id,
-            client_secret: client_secret,
+            project_key,
+            client_id,
+            client_secret,
             permissions: vec!["manage_project"],
-            client: client,
+            client,
             token: None,
         }
     }
@@ -177,7 +177,7 @@ impl<'a> CtpClient<'a> {
     /// - in Europe: https://impex.sphere.io/graphiql
     /// - in US: https://impex.commercetools.co/graphiql
     pub fn graphql(&mut self, query: &str) -> crate::Result<CtpResponse> {
-        let body = serde_json::to_string(&GraphQLQuery { query: query })?;
+        let body = serde_json::to_string(&GraphQLQuery { query })?;
 
         self.request(Method::Post, "/graphql")
             .map(|r| r.body(&body))

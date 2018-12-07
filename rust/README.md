@@ -32,14 +32,26 @@ cargo doc
 The documentation is available in `target/doc/commercetools`.
 
 ### Format the code
-Only once:
-```
-cargo install rustfmt
-```
 
-```
-cargo fmt
-```
+- Install [`rustfmt`](https://github.com/rust-lang/rustfmt) (once)
+
+        rustup component add rustfmt
+
+- Format the code with:
+
+        cargo fmt
+
+
+### Lint
+
+- Install [`clippy`](https://github.com/rust-lang/rust-clippy/) (once)
+
+        rustup component add clippy
+
+- Runs the linter
+
+        cargo clippy
+
 
 ## Example [fetch_products](/rust/examples/fetch_products.rs)
 ### Run the example

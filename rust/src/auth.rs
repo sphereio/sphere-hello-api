@@ -32,7 +32,7 @@ impl Token {
     pub fn new(bearer_token: Vec<u8>, expires_in_s: i64) -> Token {
         let duration = Duration::seconds(expires_in_s);
         Token {
-            bearer_token: bearer_token,
+            bearer_token,
             expires_at: UTC::now() + duration,
         }
     }
