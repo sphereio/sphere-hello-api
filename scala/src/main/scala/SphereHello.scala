@@ -1,11 +1,12 @@
+import java.util.Base64
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Future, Await}
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 import com.typesafe.config._
-import com.ning.http.client.{Response, AsyncHttpClient}
-import com.ning.http.util.Base64
 import dispatch._
 import net.liftweb.json._
+import org.asynchttpclient.{DefaultAsyncHttpClientConfig, Response}
 
 object SphereHello extends App {
   val ApiUrl = "https://api.sphere.io/"
@@ -17,14 +18,14 @@ object SphereHello extends App {
   val clientSecret = conf.getString("sphere-hello.clientSecret")
   val projectKey = conf.getString("sphere-hello.projectKey")
   
-  val h = new Http(new AsyncHttpClient)
+  val h = new Http(new DefaultAsyncHttpClientConfig.Builder())
 
   def prettyResponseBody(resp: Response) =
-    parseOpt(resp.getResponseBody) map (json => pretty(render(json))) getOrElse resp.getResponseBody
+    parseOpt(resp.getResponseBody) map (json => prettyRender(json)) getOrElse resp.getResponseBody
 
   /** @return oauth access token */
   def login(clientId: String, clientSecret: String, projectKey: String): Future[String] = {
-    val encoded = Base64.encode(s"$clientId:$clientSecret".getBytes)
+    val encoded = Base64.getEncoder.encode(s"$clientId:$clientSecret".getBytes)
     h(url(AuthApiUrl).POST
       .setHeader("Authorization", s"Basic $encoded")
       .setHeader("Content-Type", "application/x-www-form-urlencoded")
@@ -41,7 +42,7 @@ object SphereHello extends App {
     * @return <a href="HTTP_API.html#paged-query-response">PagedQueryResult</a>
     *         with the <code>results</code> array of <a href="#product-projection">ProductProjection</a> JSON. */
   def getProducts(oauthToken: String): Future[Response] =
-    h(url(s"${ApiUrl}$projectKey/product-projections").setHeader("Authorization", s"Bearer $oauthToken"))
+    h(url(s"$ApiUrl$projectKey/product-projections").setHeader("Authorization", s"Bearer $oauthToken"))
 
   try {
     val f = for {
