@@ -8,5 +8,8 @@
     ":prConcurrentLimitNone",
     ":automergeBranchMergeCommit",
     ":enableVulnerabilityAlerts"
-  ]
+  ],
+  "major": {
+    "enabled": false
+  }
 }
