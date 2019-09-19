@@ -30,9 +30,7 @@ pub struct CtpResponse {
 
 impl CtpResponse {
     pub fn new(http_response: Response) -> CtpResponse {
-        CtpResponse {
-            http_response,
-        }
+        CtpResponse { http_response }
     }
 
     pub fn status(&self) -> StatusCode {

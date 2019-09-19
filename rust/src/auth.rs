@@ -1,4 +1,4 @@
-use chrono::{Duration, DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 
 use hyper::header::{Authorization, Basic, Headers};
 use hyper::status::StatusCode;
