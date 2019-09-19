@@ -1,8 +1,7 @@
 use chrono::{DateTime, Duration, Utc};
 
-use hyper::header::{Authorization, Basic, Headers};
-use hyper::status::StatusCode;
-use hyper::Client;
+use http::header::CONTENT_LENGTH;
+use reqwest::{Client, StatusCode};
 use serde_json;
 use std::fmt;
 use std::io::Read;
@@ -71,11 +70,6 @@ pub fn retrieve_token(
         "retrieving a new OAuth token from '{}' for project '{}' with client '{}'",
         auth_url, project_key, client_id
     );
-    let mut auth_headers = Headers::new();
-    auth_headers.set(Authorization(Basic {
-        username: client_id.to_owned(),
-        password: Some(client_secret.to_owned()),
-    }));
 
     let scope = permissions
         .iter()
@@ -89,12 +83,16 @@ pub fn retrieve_token(
     );
 
     debug!("Trying to retrieve token with url '{}'", url);
-    let mut res = client.post(&url).headers(auth_headers).send()?;
+    let mut res = client
+        .post(&url)
+        .header(CONTENT_LENGTH, "0")
+        .basic_auth(client_id.to_owned(), Some(client_secret.to_owned()))
+        .send()?;
 
     let mut body = String::new();
     res.read_to_string(&mut body)?;
 
-    if res.status != StatusCode::Ok {
+    if res.status() != StatusCode::OK {
         let err = crate::UnexpectedStatus::new("expected OK".to_string(), format!("{:?}", res));
         Err(err)?
     } else {

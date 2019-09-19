@@ -97,7 +97,7 @@ version = "0.1.0"
 authors = ["My name <my@email.com>"]
 
 [dependencies]
-hyper = "0.10"
+reqwest = "0.9"
 serde = "0.9"
 serde_derive = "0.9"
 serde_json = "0.9"
@@ -111,7 +111,7 @@ path = "<path to the commercetools lib>"
 
 The `commercetools` library uses:
 
-- [hyper](http://hyper.rs/) as http client.
+- [reqwest](https://docs.rs/reqwest) as http client.
 - [serde_json](https://docs.serde.rs/serde_json/) as JSON encoding / decoding parser.
 - [log](https://doc.rust-lang.org/log) as logging facade.
 - [failure](https://docs.rs/failure) to create errors with stack traces.
