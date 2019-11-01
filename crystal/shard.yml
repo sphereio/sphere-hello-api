@@ -1,0 +1,13 @@
+name: sphereio
+version: 0.1.0
+
+authors:
+  - Holden Omans <holden.omans@gmail.com>
+
+crystal: 0.27.2
+
+license: MIT
+
+dependencies:
+  halite:
+    github: icyleaf/halite
