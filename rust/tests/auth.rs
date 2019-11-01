@@ -2,7 +2,6 @@ extern crate commercetools;
 extern crate hyper;
 
 use hyper::server::{Handler, Request, Response, Server};
-use hyper::Client;
 
 fn with_server<H: Handler + 'static, R>(handle: H, test: &Fn(String) -> R) -> R {
     let mut server = Server::http("localhost:0").unwrap().handle(handle).unwrap();
@@ -20,7 +19,7 @@ fn auth_can_extract_oauth_token() {
     }
 
     with_server(handle, &|url| {
-        let client = Client::new();
+        let client = reqwest::Client::new();
         let token = commercetools::auth::retrieve_token(
             &client,
             &url,

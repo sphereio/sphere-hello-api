@@ -17,9 +17,6 @@ pub struct UnexpectedStatus {
 
 impl UnexpectedStatus {
     pub fn new(msg: String, response: String) -> UnexpectedStatus {
-        UnexpectedStatus {
-            msg,
-            response,
-        }
+        UnexpectedStatus { msg, response }
     }
 }

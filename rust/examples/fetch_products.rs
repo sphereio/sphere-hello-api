@@ -64,7 +64,7 @@ pub struct Review {
 }
 
 fn main() {
-    env_logger::init().unwrap();
+    env_logger::init();
     let matches = App::new("sphere")
         .version("1.0")
         .author("Yann Simon <yann.simon@commercetools.com>")

@@ -1,8 +1,7 @@
-use chrono::*;
+use chrono::{DateTime, Duration, Utc};
 
-use hyper::header::{Authorization, Basic, Headers};
-use hyper::status::StatusCode;
-use hyper::Client;
+use http::header::CONTENT_LENGTH;
+use reqwest::{Client, StatusCode};
 use serde_json;
 use std::fmt;
 use std::io::Read;
@@ -11,7 +10,7 @@ use std::io::Read;
 #[derive(Debug, Clone)]
 pub struct Token {
     pub bearer_token: Vec<u8>,
-    expires_at: DateTime<UTC>,
+    expires_at: DateTime<Utc>,
 }
 
 impl fmt::Display for Token {
@@ -33,11 +32,11 @@ impl Token {
         let duration = Duration::seconds(expires_in_s);
         Token {
             bearer_token,
-            expires_at: UTC::now() + duration,
+            expires_at: Utc::now() + duration,
         }
     }
 
-    pub fn is_valid_with_margin(&self, now: DateTime<UTC>, margin: Duration) -> bool {
+    pub fn is_valid_with_margin(&self, now: DateTime<Utc>, margin: Duration) -> bool {
         debug!(
             "check if now ({}) is valid for expiration date {} with a margin of {}",
             now, self.expires_at, margin
@@ -46,7 +45,7 @@ impl Token {
     }
 
     pub fn is_valid(&self) -> bool {
-        self.is_valid_with_margin(UTC::now(), Duration::seconds(30))
+        self.is_valid_with_margin(Utc::now(), Duration::seconds(30))
     }
 }
 
@@ -71,11 +70,6 @@ pub fn retrieve_token(
         "retrieving a new OAuth token from '{}' for project '{}' with client '{}'",
         auth_url, project_key, client_id
     );
-    let mut auth_headers = Headers::new();
-    auth_headers.set(Authorization(Basic {
-        username: client_id.to_owned(),
-        password: Some(client_secret.to_owned()),
-    }));
 
     let scope = permissions
         .iter()
@@ -89,12 +83,16 @@ pub fn retrieve_token(
     );
 
     debug!("Trying to retrieve token with url '{}'", url);
-    let mut res = client.post(&url).headers(auth_headers).send()?;
+    let mut res = client
+        .post(&url)
+        .header(CONTENT_LENGTH, "0")
+        .basic_auth(client_id.to_owned(), Some(client_secret.to_owned()))
+        .send()?;
 
     let mut body = String::new();
     res.read_to_string(&mut body)?;
 
-    if res.status != StatusCode::Ok {
+    if res.status() != StatusCode::OK {
         let err = crate::UnexpectedStatus::new("expected OK".to_string(), format!("{:?}", res));
         Err(err)?
     } else {
@@ -121,14 +119,14 @@ mod tests {
     #[test]
     fn token_is_not_valid_after_expiration_date() {
         let token = Token::new(vec![], 60);
-        let now = UTC::now() + Duration::minutes(2);
+        let now = Utc::now() + Duration::minutes(2);
         assert!(!token.is_valid_with_margin(now, Duration::seconds(0)));
     }
 
     #[test]
     fn token_is_not_valid_in_margin() {
         let token = Token::new(vec![], 60);
-        let now = UTC::now() + Duration::seconds(50);
+        let now = Utc::now() + Duration::seconds(50);
         assert!(!token.is_valid_with_margin(now, Duration::seconds(20)));
     }
 }

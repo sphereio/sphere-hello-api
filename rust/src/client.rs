@@ -1,13 +1,7 @@
-use hyper::client::response::Response;
-use hyper::client::RequestBuilder;
-use hyper::header::Headers;
-use hyper::method::Method;
-use hyper::net::HttpsConnector;
-use hyper::status::StatusCode;
-use hyper::Client;
-use hyper_native_tls::NativeTlsClient;
 use serde::de::DeserializeOwned;
 
+use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
+use reqwest::{Client, Method, RequestBuilder, Response, StatusCode};
 use serde_json;
 use std::io::Read;
 
@@ -30,13 +24,11 @@ pub struct CtpResponse {
 
 impl CtpResponse {
     pub fn new(http_response: Response) -> CtpResponse {
-        CtpResponse {
-            http_response,
-        }
+        CtpResponse { http_response }
     }
 
     pub fn status(&self) -> StatusCode {
-        self.http_response.status
+        self.http_response.status()
     }
 
     pub fn body_as_string(&mut self) -> crate::Result<String> {
@@ -92,14 +84,7 @@ impl<'a> CtpClient<'a> {
     where
         REG: crate::HasApiUrl<'a> + crate::HasAuthUrl<'a>,
     {
-        let client =
-            if region.api_url().starts_with("https") || region.auth_url().starts_with("https") {
-                let ssl = NativeTlsClient::new().unwrap();
-                let connector = HttpsConnector::new(ssl);
-                Client::with_connector(connector)
-            } else {
-                Client::new()
-            };
+        let client = Client::new();
 
         CtpClient {
             api_url: region.api_url(),
@@ -158,17 +143,20 @@ impl<'a> CtpClient<'a> {
     }
 
     pub fn get(&mut self, uri: &str) -> crate::Result<CtpResponse> {
-        self.request(Method::Get, uri).and_then(send)
+        let method = Method::GET;
+        self.request(method, uri).and_then(send)
     }
 
-    pub fn post(&mut self, uri: &str, body: &str) -> crate::Result<CtpResponse> {
-        self.request(Method::Post, uri)
+    pub fn post(&mut self, uri: &str, body: &'static str) -> crate::Result<CtpResponse> {
+        let method = Method::POST;
+        self.request(method, uri)
             .map(|r| r.body(body))
             .and_then(send)
     }
 
     pub fn delete(&mut self, uri: &str) -> crate::Result<CtpResponse> {
-        self.request(Method::Delete, uri).and_then(send)
+        let method = Method::DELETE;
+        self.request(method, uri).and_then(send)
     }
 
     /// sends a [GraphQL](http://graphql.org/) query
@@ -179,15 +167,17 @@ impl<'a> CtpClient<'a> {
     pub fn graphql(&mut self, query: &str) -> crate::Result<CtpResponse> {
         let body = serde_json::to_string(&GraphQLQuery { query })?;
 
-        self.request(Method::Post, "/graphql")
-            .map(|r| r.body(&body))
+        let method = Method::POST;
+        self.request(method, "/graphql")
+            .map(|r| r.body(body))
             .and_then(send)
     }
 
     pub fn request(&mut self, method: Method, uri: &str) -> crate::Result<RequestBuilder> {
         let bearer_token = self.get_token()?;
-        let mut headers = Headers::new();
-        headers.set_raw("Authorization", vec![bearer_token]);
+        let mut headers = HeaderMap::new();
+        let bearer_token_value = HeaderValue::from_bytes(bearer_token.as_slice())?;
+        let _ = headers.insert(AUTHORIZATION, bearer_token_value);
         let uri = format!("{}/{}{}", self.api_url, self.project_key, uri);
         let client = &self.client;
         Ok(client.request(method, &uri).headers(headers))

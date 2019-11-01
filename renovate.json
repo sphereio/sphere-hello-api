@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "config:base",
+    ":preserveSemverRanges",
+    ":automergeMinor",
+    "group:allNonMajor",
+    ":prHourlyLimitNone",
+    ":prConcurrentLimitNone",
+    ":automergeBranchMergeCommit",
+    ":enableVulnerabilityAlerts",
+    "schedule:monthly"
+  ],
+  "major": {
+    "enabled": false
+  }
+}
